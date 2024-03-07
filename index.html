@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+
+    <section class="app-container">
+        <section class="app-header">
+            <h1>Stock Market Analysis</h1>
+        </section>
+        <section class="app-blocks">
+            <section class="list">
+
+                <h3>Stock List</h3>
+                <ul class="list-container">
+                    <div id="loading">
+                        <div id="loader"></div>
+                        <span>Please wait !</span>
+                    </div>
+
+                    <!-- <li>
+                        <button>Abc</button>
+                        <span>$17.66</span>
+                        <span>0.35%</span>
+                    </li> -->
+                </ul>
+            </section>
+
+            <div class="graph_and_detail">
+                <section class="graph">
+                    <h3>Graph</h3>
+                    <div class="graph-container">
+                        <div id="loading">
+                            <div id="loader"></div>
+                            <span>Please wait !</span>
+                        </div>
+                    </div>
+                    <div class="duration">
+                        <ul>
+                            <li>
+                                <input type="radio" id="1mo" name="time-duration" value="1mo" checked>
+                                <label for="1mo">
+                                    1 Month
+                                </label>
+                            </li>
+                            <li>
+                                <input type="radio" id="3mo" name="time-duration" value="3mo">
+                                <label for="3mo">
+                                    3 Month
+                                </label>
+                            </li>
+
+                            <li>
+                                <input type="radio" id="1y" name="time-duration" value="1y">
+                                <label for="1y">
+                                    1 Year
+                                </label>
+                            </li>
+                            <li>
+                                <input type="radio" id="5y" name="time-duration" value="5y">
+                                <label for="5y">
+                                    5 Year
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+                <section class="detail">
+                    <h3>Details</h3>
+                    <div class="detail-container">
+                        <div id="loading">
+                            <div id="loader"></div>
+                            <span>Please wait !</span>
+                        </div>
+                    </div>
+                    <!-- <div></div> -->
+                </section>
+            </div>
+        </section>
+    </section>
+
+
+    <script type="module" src="index.js"></script>
+</body>
+
+</html>

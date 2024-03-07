@@ -1,0 +1,185 @@
+body {
+  font-family: sans-serif;
+  margin: 15px;
+}
+
+/* utilities  *********************************************** */
+.btn-selected {
+  background-color: orange !important;
+}
+/* utilities  *********************************************** */
+section.app-container h1 {
+  background-color: cadetblue;
+  color: white;
+  text-align: center;
+  padding: 10px 0px;
+}
+
+:root {
+  --loader-height: 100px;
+  --loader-width: 100px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+#loading {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  /* --dimension: 100px; */
+  height: var(--loader-height);
+  width: var(--loader-width);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#loading span {
+  font-size: 12px;
+  font-weight: 600;
+}
+#loader {
+  border: 5px solid lightblue;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+
+  border-top: 6px solid lightseagreen;
+
+  animation-name: spin;
+  animation-duration: 1.5s;
+  animation-direction: normal;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+/* section list  */
+section.list ul {
+  position: relative;
+  min-height: var(--loader-height);
+}
+section.list h3 {
+  text-align: center;
+}
+section.list ul {
+  list-style-type: none;
+  padding: 0;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+}
+section.list li {
+  /* background-color: mediumseagreen; */
+  /* padding: 5px 10px; */
+  display: inline-block;
+  margin: 0px;
+
+  /* color: white; */
+  /* cursor: pointer; */
+
+  display: flex;
+  column-gap: 20px;
+  align-items: center;
+}
+section.list li > * {
+  width: 60px;
+}
+section.list li button {
+  background-color: mediumseagreen;
+  color: white;
+  padding: 5px 8px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  /* width: 60px; */
+}
+section.list li span {
+  display: none;
+}
+
+/* section graph  */
+section.graph .graph-container {
+  position: relative;
+  /* min-height: var(--loader-height); */
+  min-height: 350px;
+}
+div.duration {
+  visibility: hidden;
+}
+div.duration ul {
+  padding-inline: 0;
+  list-style: none;
+  max-width: 400px;
+  display: flex;
+  column-gap: 10px;
+
+  /* visibility: hidden; */
+}
+div.duration ul li label {
+  cursor: pointer;
+  /* cursor: ; */
+  width: 60px;
+  /* border: 2px solid black; */
+  padding: 4px 8px;
+  background-color: #008cba;
+  color: white;
+  font-weight: 300;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  text-align: center;
+}
+div.duration ul li input {
+  height: 0;
+  width: 0;
+
+  /* cursor: none; */
+  /* pointer-events: none;
+  display: none; */
+}
+div.duration ul li input:checked + label {
+  background-color: orange;
+  pointer-events: none;
+}
+/* section detail  */
+section.detail div.detail-container {
+  /* height: calc(100px+100px); */
+  min-height: calc(var(--loader-height) + 100px);
+  position: relative;
+}
+
+@media screen and (min-width: 576px) {
+  section.app-blocks {
+    display: flex;
+    flex-direction: row-reverse;
+  }
+
+  .app-blocks .graph_and_detail {
+    flex-basis: 0;
+    flex-grow: 4;
+  }
+
+  .app-blocks .list {
+    flex-basis: 0;
+    flex-grow: 2;
+  }
+
+  section.list li span {
+    display: initial;
+  }
+
+  section.list ul {
+    flex-direction: column;
+    row-gap: 10px;
+    align-items: center;
+    /* column-gap: 10px; */
+  }
+}
