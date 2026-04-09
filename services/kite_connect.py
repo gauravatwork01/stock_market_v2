@@ -32,3 +32,5 @@ class KiteConnect:
         )
         if errors:
             raise RuntimeError(f"BigQuery insert_rows_json failed: {errors}")
+
+        return errors

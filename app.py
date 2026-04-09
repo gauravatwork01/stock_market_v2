@@ -1,6 +1,6 @@
 import json
 import os
-
+from services import application
 import requests
 from flask import Flask, Response, redirect, render_template, url_for, request
 
@@ -30,8 +30,11 @@ def vendor_login():
 @app.route("/vendor_token", endpoint="vendor_token")
 def vendor_token():
     vendor_request_token = request.args.get("request_token")
+    application.save_vendor_token(
+        req_token = vendor_request_token
+    )
     print(f"vendor_request_token is {vendor_request_token}")
-     
+    return f"req-token recd is {vendor_request_token}"
 
 
 @app.route("/api/stocks/<path:endpoint>")
