@@ -1,16 +1,15 @@
-import * as trading_view_chart from "https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"
-
-
-
+import "https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js";
 
 class chart {
     static display_detail(stock_data, ticker = "") {
         if (ticker == "") {
-            document.querySelector("div.detail-container").textContent = stock_data[0].data.summary;
+            document.querySelector("div.detail-container").textContent =
+                stock_data[0].data.summary;
         } else {
             for (let ticker_data of stock_data) {
                 if (ticker_data.ticker == ticker) {
-                    document.querySelector("div.detail-container").textContent = ticker_data.data.summary;
+                    document.querySelector("div.detail-container").textContent =
+                        ticker_data.data.summary;
                     break;
                 }
             }
@@ -18,18 +17,15 @@ class chart {
     }
 
     static display_chart(stock_data, selected_ticker, sel_time_dur) {
-        // console.log(stock_data);
-
-        const chartOptions = { layout: { textColor: 'black', background: { type: 'solid', color: 'white' } } };
-        let graph_cont = document.querySelector('section.graph div.graph-container');
-        // console.log(graph_cont.querySelector("div.tv-lightweight-charts"))
+        const chartOptions = {
+            layout: { textColor: "black", background: { type: "solid", color: "white" } },
+        };
+        let graph_cont = document.querySelector("section.graph div.graph-container");
         if (graph_cont.querySelector("div.tv-lightweight-charts") != null) {
             graph_cont.querySelector("div.tv-lightweight-charts").remove();
         }
-        // .remove();
-        //  = "";
         const chart = LightweightCharts.createChart(graph_cont, chartOptions);
-        const lineSeries = chart.addLineSeries({ color: '#2962FF' });
+        const lineSeries = chart.addLineSeries({ color: "#2962FF" });
 
         let selected_ticker_data;
 
@@ -45,9 +41,9 @@ class chart {
         let data = [];
         for (let idx in values) {
             let new_obj = {
-                "value": values[idx],
-                "time": time_stamps[idx]
-            }
+                value: values[idx],
+                time: time_stamps[idx],
+            };
             data.push(new_obj);
         }
 
@@ -55,32 +51,30 @@ class chart {
 
         chart.timeScale().fitContent();
 
-        document.querySelector("div.graph-container div#loading").style.visibility = "hidden";
+        document.querySelector("div.graph-container div#loading").style.visibility =
+            "hidden";
     }
 }
 
-// function 
-
 class chart_buttons_cl {
-
     static stock_data;
     constructor(data) {
         chart_buttons_cl.stock_data = data;
-    };
+    }
 
     select_btn(btn) {
-        let all_btns = document.querySelectorAll("ul.list-container li > button.btn-selected");
+        let all_btns = document.querySelectorAll(
+            "ul.list-container li > button.btn-selected"
+        );
         for (let button of all_btns) {
             button.classList.remove("btn-selected");
-            // console.log("hey")
         }
 
         btn.classList.add("btn-selected");
     }
 
     add_stock_btn_listener(btn) {
-
-        btn.addEventListener("click", (e) => {
+        btn.addEventListener("click", () => {
             this.select_btn(btn);
             let ticker = document.querySelector("button.btn-selected");
             ticker = ticker.textContent;
@@ -89,10 +83,8 @@ class chart_buttons_cl {
             time_dur = time_dur.value;
 
             chart.display_chart(chart_buttons_cl.stock_data, ticker, time_dur);
-            // let ticker = btn.textContent;
             chart.display_detail(chart_buttons_cl.stock_data, ticker);
         });
-
     }
 
     display_stock_list_btns() {
@@ -121,15 +113,14 @@ class chart_buttons_cl {
     }
 
     add_time_dur_btn_listener(rad_inp) {
-        rad_inp.addEventListener("change", (e) => {
-
+        rad_inp.addEventListener("change", () => {
             let ticker = document.querySelector("button.btn-selected");
             ticker = ticker.textContent;
 
             let time_dur = document.querySelector("div.duration input:checked");
             time_dur = time_dur.value;
             chart.display_chart(chart_buttons_cl.stock_data, ticker, time_dur);
-        })
+        });
     }
 
     display_time_dur_btns() {
@@ -140,14 +131,6 @@ class chart_buttons_cl {
             this.add_time_dur_btn_listener(radio_inp);
         }
     }
-
-
 }
 
-
-
-
-
-export {
-    chart_buttons_cl, chart
-};
+export { chart_buttons_cl, chart };

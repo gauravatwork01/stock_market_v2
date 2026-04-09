@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="index.css">
+    <title>Stock Market Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 </head>
 
 <body>
@@ -23,12 +23,6 @@
                         <div id="loader"></div>
                         <span>Please wait !</span>
                     </div>
-
-                    <!-- <li>
-                        <button>Abc</button>
-                        <span>$17.66</span>
-                        <span>0.35%</span>
-                    </li> -->
                 </ul>
             </section>
 
@@ -79,14 +73,13 @@
                             <span>Please wait !</span>
                         </div>
                     </div>
-                    <!-- <div></div> -->
                 </section>
             </div>
         </section>
     </section>
 
 
-    <script type="module" src="index.js"></script>
+    <script type="module" src="{{ url_for('static', filename='index.js') }}"></script>
 </body>
 
 </html>
