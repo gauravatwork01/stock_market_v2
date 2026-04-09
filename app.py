@@ -2,7 +2,7 @@ import json
 import os
 
 import requests
-from flask import Flask, Response, render_template, redirect
+from flask import Flask, Response, redirect, render_template, url_for, request
 
 STOCK_API_BASE = os.environ.get(
     "STOCK_API_BASE", "https://stocks3.onrender.com"
@@ -10,17 +10,29 @@ STOCK_API_BASE = os.environ.get(
 
 app = Flask(__name__)
 
-
-@app.route("/")
-def index():
+@app.route("/app")
+def stock_app():
     return render_template("index.html")
 
 
-@app.route("/kite")
-def kite_login():
+@app.route("/")
+def index():
+    return redirect(url_for("kite_login_url"))
+
+
+@app.route("/vendor_login", endpoint="kite_login_url")
+def vendor_login():
     kite_app_api_key = "qjj8i06fi5r3s8ru"
     kite_public_login_endpoint = f"https://kite.zerodha.com/connect/login?v=3&api_key={kite_app_api_key}"
     return redirect(kite_public_login_endpoint)
+
+
+@app.route("/vendor_token", endpoint="vendor_token")
+def vendor_token():
+    vendor_request_token = request.args.get("request_token")
+    print(f"vendor_request_token is {vendor_request_token}")
+     
+
 
 @app.route("/api/stocks/<path:endpoint>")
 def stocks_proxy(endpoint: str):
@@ -40,4 +52,4 @@ def stocks_proxy(endpoint: str):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")), debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "8080")), debug=True)
