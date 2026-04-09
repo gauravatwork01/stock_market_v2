@@ -2,7 +2,7 @@ import json
 import os
 
 import requests
-from flask import Flask, Response, render_template
+from flask import Flask, Response, render_template, redirect
 
 STOCK_API_BASE = os.environ.get(
     "STOCK_API_BASE", "https://stocks3.onrender.com"
@@ -15,6 +15,12 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
+
+@app.route("/kite")
+def kite_login():
+    kite_app_api_key = "qjj8i06fi5r3s8ru"
+    kite_public_login_endpoint = f"https://kite.zerodha.com/connect/login?v=3&api_key={kite_app_api_key}"
+    return redirect(kite_public_login_endpoint)
 
 @app.route("/api/stocks/<path:endpoint>")
 def stocks_proxy(endpoint: str):
@@ -34,4 +40,4 @@ def stocks_proxy(endpoint: str):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")))
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")), debug=True)
