@@ -3,20 +3,38 @@ import os
 from datetime import datetime, timezone
 from services.datetime import DatetimeHelper
 
+from kiteconnect import KiteConnect
+
 from google.cloud import bigquery
 
 logger = logging.getLogger(__name__)
 
 API_KEY = "qjj8i06fi5r3s8ru"
+API_SECRET = "hxqjy14n6rvk6vkqcllefhlabkbv13yx"
 LOGIN_ENDPOINT = f"https://kite.zerodha.com/connect/login?v=3&api_key={API_KEY}"
 
 # Set BIGQUERY_KITE_REQUEST_TOKEN_TABLE to "project.dataset.table".
 # ADC (including GOOGLE_APPLICATION_CREDENTIALS → service account JSON) is used automatically.
 
 
-class KiteConnect:
+class KiteConnectClient:
+
+    def __init__(self) -> None:
+        self.client = KiteConnect(api_key = API_KEY )
+
+    def get_login_url(self):
+        login_url = self.client.login_url()
+        return login_url
+
+    def get_access_token(self,request_token):
+        self.client.generate_session(request_token, api_secret=API_SECRET)
+        0
+class KiteConnectVendor:
     def __init__(self) -> None:
         self._bq_client = bigquery.Client() 
+
+
+    # def 
 
     def save_request_token(self, req_token: str) -> None:
 

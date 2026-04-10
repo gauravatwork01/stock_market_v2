@@ -8,7 +8,12 @@ STOCK_API_BASE = os.environ.get(
     "STOCK_API_BASE", "https://stocks3.onrender.com"
 ).rstrip("/")
 
+
+from google.cloud import bigquery
+bq_client = bigquery.Client() 
+
 app = Flask(__name__)
+app.bq_client = bq_client
 
 @app.route("/app")
 def stock_app():
