@@ -2,3 +2,7 @@ Flask>=3.0.0,<4
 gunicorn>=22.0.0
 requests>=2.31.0,<3
 google-cloud-bigquery>=3.25.0,<4
+
+kiteconnect==5.1.0
+pydantic==2.13.2
+

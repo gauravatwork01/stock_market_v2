@@ -27,7 +27,7 @@ class TokenRepository:
 
     def create_token_for_date(self, request_token, access_token, target_date : date):
         query = f"""
-            INSERT INTO `{TOKENS_TABLE_PATH}` (date, access_token, request_token)
+            INSERT INTO `{TOKENS_TABLE_PATH}` (token_date, access_token, request_token)
             VALUES (@date, @access_token, @request_token)
         """
 
@@ -39,7 +39,7 @@ class TokenRepository:
             ]
         )
 
-        tokens = self.client.query(query, job_config=job_config).result()
+        tokens = bigquery_client.query(query, job_config=job_config).result()
         return tokens[0]
     
     def update_token_for_date(self,request_token, access_token, target_date : date):
@@ -48,7 +48,7 @@ class TokenRepository:
             SET
             access_token = @access_token,
             request_token = @request_token
-            WHERE date = @date
+            WHERE token_date = @date
         """
 
         job_config = bigquery.QueryJobConfig(
@@ -59,20 +59,20 @@ class TokenRepository:
             ]
         )
 
-        tokens = self.client.query(query, job_config=job_config).result()
+        tokens = bigquery_client.query(query, job_config=job_config).result()
         return tokens[0]
 
 
     def token_exists_for_date(self, target_date : date):
         query = f"""
-            SELECT date, access_token, request_token
+            SELECT token_date, access_token, request_token
             FROM `{TOKENS_TABLE_PATH}`
-            WHERE date = @date
+            WHERE token_date = @filter_date
             LIMIT 1
         """
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
-                bigquery.ScalarQueryParameter("date", "DATE", target_date)
+                bigquery.ScalarQueryParameter("filter_date", "DATE", target_date)
             ]
         )
         query_job = bigquery_client.query(query, job_config=job_config)
@@ -85,7 +85,7 @@ class TokenRepository:
         row = rows[0]
 
         return Token(
-            date=row["date"],
+            token_date=row["token_date"],
             access_token=row["access_token"],
             request_token=row["request_token"],
         ) 

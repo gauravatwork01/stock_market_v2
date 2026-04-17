@@ -3,7 +3,6 @@
 import logging
 import os
 from datetime import datetime, timezone
-from services.datetime import DatetimeHelper
 from kiteconnect import KiteConnect
 from google.cloud import bigquery
 
@@ -29,29 +28,29 @@ class KiteConnectClient:
 
 
 
-class KiteConnectVendor:
-    def __init__(self) -> None:
-        self._bq_client = bigquery.Client() 
+# class KiteConnectVendor:
+#     def __init__(self) -> None:
+#         self._bq_client = bigquery.Client() 
 
 
-    # def 
+#     # def 
 
-    def save_request_token(self, req_token: str) -> None:
+#     def save_request_token(self, req_token: str) -> None:
 
-        row = {
-            "user_id" : "default-gaurav",
-            "request_token": req_token,
-            "timestamp": DatetimeHelper.now_ist().isoformat(),
-        }
-        table_ref = self._bq_client.dataset("datawarehouse").table("request_tokens")
-        errors = self._bq_client.insert_rows_json(
-            table= table_ref, 
-            json_rows = [row]
-        )
-        if errors:
-            raise RuntimeError(f"BigQuery insert_rows_json failed: {errors}")
+#         row = {
+#             "user_id" : "default-gaurav",
+#             "request_token": req_token,
+#             "timestamp": DatetimeHelper.now_ist().isoformat(),
+#         }
+#         table_ref = self._bq_client.dataset("datawarehouse").table("request_tokens")
+#         errors = self._bq_client.insert_rows_json(
+#             table= table_ref, 
+#             json_rows = [row]
+#         )
+#         if errors:
+#             raise RuntimeError(f"BigQuery insert_rows_json failed: {errors}")
 
-        return errors
+#         return errors
 
 
 
