@@ -2,7 +2,7 @@
 from src.config.bigquery import bigquery, bigquery_client, TOKENS_TABLE_PATH
 from datetime import date
 from src.broker.kite_connect.auth.models import Token
-
+from utilities import utilities
 
 class TokenRepository:
 
@@ -27,15 +27,17 @@ class TokenRepository:
 
     def create_token_for_date(self, request_token, access_token, target_date : date):
         query = f"""
-            INSERT INTO `{TOKENS_TABLE_PATH}` (token_date, access_token, request_token)
-            VALUES (@date, @access_token, @request_token)
+            INSERT INTO `{TOKENS_TABLE_PATH}` 
+            (token_date, access_token, request_token, updated_at)
+            VALUES (@date, @access_token, @request_token, @updated_at)
         """
-
+        updated_at = utilities.get_ist_datetime()
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
                 bigquery.ScalarQueryParameter("date", "DATE", target_date),
                 bigquery.ScalarQueryParameter("access_token", "STRING", access_token),
                 bigquery.ScalarQueryParameter("request_token", "STRING", request_token),
+                bigquery.ScalarQueryParameter("updated_at", "TIMESTAMP", updated_at),
             ]
         )
 
@@ -47,15 +49,17 @@ class TokenRepository:
             UPDATE `{TOKENS_TABLE_PATH}`
             SET
             access_token = @access_token,
-            request_token = @request_token
+            request_token = @request_token,
+            updated_at = @updated_at
             WHERE token_date = @date
         """
-
+        updated_at = utilities.get_ist_datetime()
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
                 bigquery.ScalarQueryParameter("date", "DATE", target_date),
                 bigquery.ScalarQueryParameter("access_token", "STRING", access_token),
                 bigquery.ScalarQueryParameter("request_token", "STRING", request_token),
+                bigquery.ScalarQueryParameter("updated_at", "TIMESTAMP", updated_at),
             ]
         )
 
@@ -65,7 +69,7 @@ class TokenRepository:
 
     def token_exists_for_date(self, target_date : date):
         query = f"""
-            SELECT token_date, access_token, request_token
+            SELECT token_date, access_token, request_token, updated_at
             FROM `{TOKENS_TABLE_PATH}`
             WHERE token_date = @filter_date
             LIMIT 1
@@ -88,6 +92,7 @@ class TokenRepository:
             token_date=row["token_date"],
             access_token=row["access_token"],
             request_token=row["request_token"],
+            updated_at=row["updated_at"],
         ) 
 
 
