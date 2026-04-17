@@ -9,21 +9,21 @@ class TokenRepository:
     def create_update_token(self, request_token, access_token, target_date : date):
         existing_token = self.token_exists_for_date(target_date= target_date)
         if existing_token:
-            token = self.update_token_for_date(
+            resp = self.update_token_for_date(
                 request_token= request_token,
                 access_token= access_token,
                 target_date= target_date
             ) 
             msg = "Updated"
         else:
-            token = self.create_token_for_date(
+            resp = self.create_token_for_date(
                 request_token= request_token,
                 access_token= access_token,
                 target_date= target_date
             )
             msg = "Created"
         
-        return (token, msg)
+        return (resp, msg)
 
     def create_token_for_date(self, request_token, access_token, target_date : date):
         query = f"""
@@ -59,8 +59,8 @@ class TokenRepository:
             ]
         )
 
-        tokens = bigquery_client.query(query, job_config=job_config).result()
-        return tokens[0]
+        resp = bigquery_client.query(query, job_config=job_config).result()
+        return resp
 
 
     def token_exists_for_date(self, target_date : date):

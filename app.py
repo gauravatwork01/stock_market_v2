@@ -35,11 +35,11 @@ def vendor_login():
 @app.route("/vendor_request_token", endpoint="vendor_request_token")
 def vendor_token():
     vendor_request_token = request.args.get("request_token")
-    # vendor_access_token = KiteConnectService.get_access_token(
-    #     request_token= vendor_request_token
-    # )
-    vendor_access_token = {}
-    vendor_access_token["access_token"] = "98hujiop"
+    vendor_access_token = KiteConnectService.get_access_token(
+        request_token= vendor_request_token
+    )
+    # vendor_access_token = {}
+    # vendor_access_token["access_token"] = "98hujiop"
     current_date = utilities.get_ist_date()
     VendorAuthService.save_token(
         token_date = current_date,
