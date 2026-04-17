@@ -3,6 +3,8 @@ import os
 from services import application
 import requests
 from flask import Flask, Response, redirect, render_template, url_for, request
+from src.broker.kite_connect.auth.service import KiteConnectService, VendorAuthService
+from utilities import utilities
 
 STOCK_API_BASE = os.environ.get(
     "STOCK_API_BASE", "https://stocks3.onrender.com"
@@ -25,38 +27,42 @@ def index():
     return redirect(url_for("kite_login_url"))
 
 
+
 @app.route("/vendor_login", endpoint="kite_login_url")
 def vendor_login():
-    kite_app_api_key = "qjj8i06fi5r3s8ru"
-    kite_public_login_endpoint = f"https://kite.zerodha.com/connect/login?v=3&api_key={kite_app_api_key}"
-    return redirect(kite_public_login_endpoint)
+    login_url = KiteConnectService.get_login_url()
+    return redirect(login_url)
 
-
-@app.route("/vendor_token", endpoint="vendor_token")
+@app.route("/vendor_request_token", endpoint="vendor_request_token")
 def vendor_token():
     vendor_request_token = request.args.get("request_token")
-    application.save_vendor_token(
-        req_token = vendor_request_token
+    vendor_access_token = KiteConnectService.get_access_token(
+        request_token= vendor_request_token
     )
-    print(f"vendor_request_token is {vendor_request_token}")
-    return f"req-token recd is {vendor_request_token}"
+    current_date = utilities.get_ist_date()
+    VendorAuthService.save_token(
+        token_date = current_date,
+        request_token = vendor_request_token,
+        access_token = vendor_access_token
+    )
+    return "Done"
 
 
-@app.route("/api/stocks/<path:endpoint>")
-def stocks_proxy(endpoint: str):
-    url = f"{STOCK_API_BASE}/api/stocks/{endpoint}"
-    try:
-        upstream = requests.get(url, timeout=60)
-    except requests.RequestException as exc:
-        return Response(
-            json.dumps(
-                {"error": "upstream request failed", "detail": str(exc)}
-            ),
-            status=502,
-            mimetype="application/json",
-        )
-    ct = upstream.headers.get("content-type", "application/json")
-    return Response(upstream.content, status=upstream.status_code, mimetype=ct)
+# @app.route("/api/stocks/<path:endpoint>")
+# def stocks_proxy(endpoint: str):
+#     url = f"{STOCK_API_BASE}/api/stocks/{endpoint}"
+#     try:
+#         upstream = requests.get(url, timeout=60)
+#     except requests.RequestException as exc:
+#         return Response(
+#             json.dumps(
+#                 {"error": "upstream request failed", "detail": str(exc)}
+#             ),
+#             status=502,
+#             mimetype="application/json",
+#         )
+#     ct = upstream.headers.get("content-type", "application/json")
+#     return Response(upstream.content, status=upstream.status_code, mimetype=ct)
 
 
 if __name__ == "__main__":

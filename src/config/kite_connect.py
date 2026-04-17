@@ -1,21 +1,18 @@
+
+
 import logging
 import os
 from datetime import datetime, timezone
 from services.datetime import DatetimeHelper
-
 from kiteconnect import KiteConnect
-
 from google.cloud import bigquery
 
 logger = logging.getLogger(__name__)
 
 API_KEY = "qjj8i06fi5r3s8ru"
 API_SECRET = "hxqjy14n6rvk6vkqcllefhlabkbv13yx"
-LOGIN_ENDPOINT = f"https://kite.zerodha.com/connect/login?v=3&api_key={API_KEY}"
 
-# Set BIGQUERY_KITE_REQUEST_TOKEN_TABLE to "project.dataset.table".
-# ADC (including GOOGLE_APPLICATION_CREDENTIALS → service account JSON) is used automatically.
-
+# kite_connect_client = 
 
 class KiteConnectClient:
 
@@ -27,8 +24,11 @@ class KiteConnectClient:
         return login_url
 
     def get_access_token(self,request_token):
-        self.client.generate_session(request_token, api_secret=API_SECRET)
-        
+        access_token = self.client.generate_session(request_token, api_secret=API_SECRET)
+        return access_token
+
+
+
 class KiteConnectVendor:
     def __init__(self) -> None:
         self._bq_client = bigquery.Client() 
@@ -52,3 +52,12 @@ class KiteConnectVendor:
             raise RuntimeError(f"BigQuery insert_rows_json failed: {errors}")
 
         return errors
+
+
+
+
+
+
+
+
+
