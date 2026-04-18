@@ -96,5 +96,13 @@ class TokenRepository:
         ) 
 
 
+    def get_todays_token(self):
+        ist_now = utilities.get_ist_datetime()
+        existing_token = self.token_exists_for_date(
+            target_date= ist_now.date()
+        )
+        return existing_token 
+
+
 
 

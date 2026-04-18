@@ -5,6 +5,9 @@ import os
 from datetime import datetime, timezone
 from kiteconnect import KiteConnect
 from google.cloud import bigquery
+from typing import List
+from src.broker.kite_connect.auth.repository import TokenRepository
+# from src.broker.kite_connect.auth.service import VendorAuthFlowService
 
 logger = logging.getLogger(__name__)
 
@@ -12,9 +15,21 @@ API_KEY = "qjj8i06fi5r3s8ru"
 API_SECRET = "hxqjy14n6rvk6vkqcllefhlabkbv13yx"
 
 
-class KiteConnectClient:
+class VendorAPIClient:
 
     client = KiteConnect(api_key = API_KEY )
+
+    # def __init__(self) -> None:
+    #     token_repo = TokenRepository()
+    #     existing_token = token_repo.get_todays_token()
+    #     if 
+        
+    #     pass
+
+    @classmethod
+    def attach_access_token(cls, access_token):
+        cls.client.set_access_token(access_token)
+        print(f"access_token attatched : {cls.client.access_token}")
 
     @classmethod
     def get_login_url(cls):
@@ -27,36 +42,38 @@ class KiteConnectClient:
         return access_token
 
 
-
-# class KiteConnectVendor:
-#     def __init__(self) -> None:
-#         self._bq_client = bigquery.Client() 
-
-
-#     # def 
-
-#     def save_request_token(self, req_token: str) -> None:
-
-#         row = {
-#             "user_id" : "default-gaurav",
-#             "request_token": req_token,
-#             "timestamp": DatetimeHelper.now_ist().isoformat(),
-#         }
-#         table_ref = self._bq_client.dataset("datawarehouse").table("request_tokens")
-#         errors = self._bq_client.insert_rows_json(
-#             table= table_ref, 
-#             json_rows = [row]
-#         )
-#         if errors:
-#             raise RuntimeError(f"BigQuery insert_rows_json failed: {errors}")
-
-#         return errors
+    @classmethod
+    def attach_access_token_from_db(cls):
+        token_repo = TokenRepository()
+        existing_token = token_repo.get_todays_token()
+        if existing_token:
+            cls.client.set_access_token(existing_token.access_token)
+            print(f"access_token attatched from db : {cls.client.access_token}")
+        else:
+            raise RuntimeError("access token is not available in db, login-again")
 
 
+    @classmethod
+    def get_portfolio_holdings(cls):
+        if cls.client.access_token is None:
+            cls.attach_access_token_from_db()
+        holdings : List = cls.client.holdings()
+
+        holdings_resp = []
+        count = 0 
+        for each_holding in holdings:
+            count += 1 
+            holdings_resp.append({
+                "sr_num" : count,
+                "stock" : each_holding["tradingsymbol"],
+                "quantity" : each_holding["quantity"],
+                "buying_avg_price" : each_holding["average_price"],
+                "last_price_in_market" : each_holding["last_price"],
+            })
+
+        return holdings_resp
 
 
-
-
-
+# vendor_api_client = VendorAPIClient()
 
 

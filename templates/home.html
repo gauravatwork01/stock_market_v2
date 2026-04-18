@@ -16,8 +16,14 @@
             
             <div class="row">
 
-                <div class="col-10 text-bg-light p-3">
-                  Block 1 (10 columns)
+                <div class="col-2 text-bg-light p-3">
+                    <form action="/vendor_login" method="GET">
+                        <button type="submit" class="btn btn-warning">Refresh-Token</button>
+                    </form>
+                </div>
+
+                <div class="col-8 text-bg-light p-3">
+                    Block 1 (10 columns)
                 </div>
             
                 <div class="col-2 text-bg-secondary p-3">
@@ -44,13 +50,35 @@
             </section>
 
             <div class="graph_and_detail">
-                <section class="graph">
-                    <h3>Graph</h3>
-                    <div class="graph-container">
-                        <div id="loading">
+                <section class="portfolio_holdings">
+                    <h3>Holdings</h3>
+                    <div class="holdings-container">
+                        <table class="table">
+                            <thead>
+                              <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">stock</th>
+                                <th scope="col">quantity</th>
+                                <th scope="col">buying_avg_price</th>
+                                <th scope="col">last_price_in_market</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                {% for each_holding in holdings %}
+                                <tr>
+                                  <th scope="row">{{ each_holding.sr_num }}</th>
+                                  <td>{{ each_holding.stock }}</td>
+                                  <td>{{ each_holding.quantity }}</td>
+                                  <td>{{ each_holding.buying_avg_price }}</td>
+                                  <td>{{ each_holding.last_price_in_market }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                          </table>
+                        <!-- <div id="loading">
                             <div id="loader"></div>
                             <span>Please wait !</span>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="duration">
                         <ul>
