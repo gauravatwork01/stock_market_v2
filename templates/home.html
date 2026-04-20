@@ -53,14 +53,20 @@
                 <section class="portfolio_holdings">
                     <h3>Holdings</h3>
                     <div class="holdings-container">
-                        <table class="table">
-                            <thead>
+                        <table class="table table-dark table-sm table-striped fw-normal fs-6" >
+                            <thead class="table-light">
                               <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">stock</th>
-                                <th scope="col">quantity</th>
-                                <th scope="col">buying_avg_price</th>
-                                <th scope="col">last_price_in_market</th>
+                                <!-- <th scope="col">#</th> -->
+                                <th class="col" style="width: 60px;">
+                                    Num
+                                </th>
+                                <th class="col">stock</th>
+                                <th class="col">quantity</th>
+                                <th class="col">buying avg price</th>
+                                <th class="col">total buying price</th>
+                                <th class="col text-wrap">last price in market</th>
+                                <th class="col text-wrap">Total current price</th>
+                                <th class="col text-wrap">Diff</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -70,7 +76,10 @@
                                   <td>{{ each_holding.stock }}</td>
                                   <td>{{ each_holding.quantity }}</td>
                                   <td>{{ each_holding.buying_avg_price }}</td>
+                                  <td>{{ each_holding.quantity*each_holding.buying_avg_price }}</td>
                                   <td>{{ each_holding.last_price_in_market }}</td>
+                                  <td>{{ each_holding.quantity*each_holding.last_price_in_market }}</td>
+                                  <td>{{ each_holding.quantity*each_holding.last_price_in_market }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

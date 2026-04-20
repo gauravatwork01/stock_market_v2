@@ -3,6 +3,7 @@ import os
 import requests
 from flask import Flask, Response, redirect, render_template, url_for, request
 from src.broker.kite_connect.auth.service import VendorAPIClientService, VendorAuthFlowService
+from src.broker.kite_connect.portfolio.service import PortfolioService
 from utilities import utilities
 from google.cloud import bigquery
 
@@ -22,7 +23,7 @@ def start_page():
 def home_page():
     is_online = VendorAuthFlowService.is_online()
     if is_online:
-        holdings = VendorAPIClientService.get_portfolio_holdings()
+        holdings = PortfolioService.get_holdings()
         return render_template("home.html", is_online= is_online, holdings= holdings)
     else:
         return redirect(url_for("vendor_login_endpoint"))

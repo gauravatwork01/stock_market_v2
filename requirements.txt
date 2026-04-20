@@ -5,4 +5,10 @@ google-cloud-bigquery>=3.25.0,<4
 
 kiteconnect==5.1.0
 pydantic==2.13.2
+pandas==2.3.3
+pytest==9.0.3
+
+
+
+
 

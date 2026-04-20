@@ -9,6 +9,7 @@ class Token(BaseModel):
     access_token: str
     request_token: str
     updated_at: datetime | None = None 
+    token_expiry: datetime | None = None 
 
 
 

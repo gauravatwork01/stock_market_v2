@@ -58,20 +58,21 @@ class VendorAPIClient:
         if cls.client.access_token is None:
             cls.attach_access_token_from_db()
         holdings : List = cls.client.holdings()
+        return holdings
 
-        holdings_resp = []
-        count = 0 
-        for each_holding in holdings:
-            count += 1 
-            holdings_resp.append({
-                "sr_num" : count,
-                "stock" : each_holding["tradingsymbol"],
-                "quantity" : each_holding["quantity"],
-                "buying_avg_price" : each_holding["average_price"],
-                "last_price_in_market" : each_holding["last_price"],
-            })
+        # holdings_resp = []
+        # count = 0 
+        # for each_holding in holdings:
+        #     count += 1 
+        #     holdings_resp.append({
+        #         "sr_num" : count,
+        #         "stock" : each_holding["tradingsymbol"],
+        #         "quantity" : each_holding["quantity"],
+        #         "buying_avg_price" : each_holding["average_price"],
+        #         "last_price_in_market" : each_holding["last_price"],
+        #     })
 
-        return holdings_resp
+        # return holdings_resp
 
 
 # vendor_api_client = VendorAPIClient()
