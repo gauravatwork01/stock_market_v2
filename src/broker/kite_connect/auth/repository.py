@@ -1,5 +1,5 @@
 
-from src.config.bigquery import bigquery, bigquery_client, get_tokens_table_path
+from src.config.bigquery import bigquery, get_bigquery_client, get_tokens_table_path
 from datetime import date, timedelta
 from src.broker.kite_connect.auth.models import Token
 from utilities import utilities
@@ -54,7 +54,7 @@ class TokenRepository:
             ]
         )
 
-        tokens = bigquery_client.query(query, job_config=job_config).result()
+        tokens = get_bigquery_client().query(query, job_config=job_config).result()
         return tokens[0]
     
     def update_token_for_date(self,request_token, access_token, target_date : date):
@@ -76,7 +76,7 @@ class TokenRepository:
             ]
         )
 
-        resp = bigquery_client.query(query, job_config=job_config).result()
+        resp = get_bigquery_client().query(query, job_config=job_config).result()
         return resp
 
 
@@ -92,7 +92,7 @@ class TokenRepository:
                 bigquery.ScalarQueryParameter("filter_date", "DATE", target_date)
             ]
         )
-        query_job = bigquery_client.query(query, job_config=job_config)
+        query_job = get_bigquery_client().query(query, job_config=job_config)
         results = query_job.result()
 
         rows = list(results)
@@ -120,7 +120,7 @@ class TokenRepository:
                 bigquery.ScalarQueryParameter("filter_date", "DATE", target_date)
             ]
         )
-        query_job = bigquery_client.query(query, job_config=job_config)
+        query_job = get_bigquery_client().query(query, job_config=job_config)
         results = query_job.result()
 
         rows = list(results)
@@ -145,10 +145,27 @@ class TokenRepository:
         return existing_token 
 
 
-    def get_latest_token():
+    def get_latest_token(self)->Token:
+        query = f"""
+            SELECT token_date, access_token, request_token, updated_at, token_expiry
+            FROM `{get_tokens_table_path()}`
+            ORDER BY token_date DESC
+            LIMIT 1
+        """
+        query_job = get_bigquery_client().query(query)
+        results = query_job.result() 
 
-        pass 
+        rows = list(results)
+        if not rows:
+            return None
 
+        row = rows[0]
 
-
+        return Token(
+            token_date=row["token_date"],
+            access_token=row["access_token"],
+            request_token=row["request_token"],
+            updated_at=row["updated_at"],
+            token_expiry= row["token_expiry"]
+        ) 
 

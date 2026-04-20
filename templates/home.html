@@ -27,10 +27,10 @@
                 </div>
             
                 <div class="col-2 text-bg-secondary p-3">
-                    {% if is_online %}
-                        <button type="button" class="btn btn-success">Online</button>
+                    {% if is_app_authenticated %}
+                        <button type="button" class="btn btn-success">App-authent.</button>
                     {% else %}
-                        <button type="button" class="btn btn-danger">Offline</button>
+                        <button type="button" class="btn btn-danger">App not authent.</button>
                     {% endif %}
                 </div>
             

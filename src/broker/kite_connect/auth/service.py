@@ -45,20 +45,18 @@ class VendorAuthFlowService:
         )
 
     @staticmethod 
-    def is_online():
-        is_online = False
-        ist_now = utilities.get_ist_datetime()
-        token_repo = TokenRepository()
-        existing_token = token_repo.token_exists_for_date(
-            target_date= ist_now.date()
-        )
-        if existing_token:
-            updated_at_utc = existing_token.updated_at
-            updated_at_ist = updated_at_utc.astimezone(ZoneInfo("Asia/Kolkata"))
-            if updated_at_ist >= ist_now.replace(hour=6, minute=1, second=1):
-                is_online = True
+    def is_app_authenticated():
+        is_app_authenticated = False
         
-        return is_online, existing_token
+        ist_now = utilities.get_ist_now_datetime()
+        token_repo = TokenRepository()
+        latest_token = token_repo.get_latest_token()
+        ist_token_expiry = latest_token.ist_token_expiry
+        if ist_token_expiry:
+            if ist_token_expiry > ist_now:
+                is_app_authenticated = True 
+        
+        return is_app_authenticated#, latest_token
 
 
 

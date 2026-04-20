@@ -21,10 +21,10 @@ def start_page():
 
 @app.route("/home", endpoint="home_page_endpoint")
 def home_page():
-    is_online = VendorAuthFlowService.is_online()
-    if is_online:
+    is_app_authenticated = VendorAuthFlowService.is_app_authenticated()
+    if is_app_authenticated:
         holdings = PortfolioService.get_holdings()
-        return render_template("home.html", is_online= is_online, holdings= holdings)
+        return render_template("home.html", is_app_authenticated= is_app_authenticated, holdings= holdings)
     else:
         return redirect(url_for("vendor_login_endpoint"))
 

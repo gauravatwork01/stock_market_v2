@@ -8,6 +8,7 @@ from google.cloud import bigquery
 bigquery_client = None 
 
 def get_bigquery_client():
+    global bigquery_client
     if bigquery_client is None:
         bigquery_client = bigquery.Client()
         print("Creating bigquery client...")
