@@ -9,6 +9,9 @@ def get_ist_date():
 def get_ist_now_datetime():
     return datetime.now(ZoneInfo("Asia/Kolkata"))
 
+def get_utc_now_datetime():
+    return datetime.now()
+
 
     
 

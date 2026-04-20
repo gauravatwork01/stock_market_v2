@@ -6,6 +6,7 @@ from datetime import date, datetime, timedelta
 from utilities import utilities
 from zoneinfo import ZoneInfo
 from typing import List
+from src.broker.kite_connect.auth.models import Token
 class VendorAPIClientService:
 
     @staticmethod
@@ -25,7 +26,7 @@ class VendorAPIClientService:
     @staticmethod
     def attach_access_token_from_db():
         token_repo = TokenRepository()
-        ist_now = utilities.get_ist_datetime()
+        ist_now = utilities.get_ist_now_datetime()
         token_repo.token_exists_for_date(
             target_date= ist_now.date()
         )
@@ -36,8 +37,32 @@ class VendorAPIClientService:
 class VendorAuthFlowService:
 
     @staticmethod
-    def save_token(token_date:date,request_token, access_token):
+    def create_update_token(request_token, access_token):
+        ist_now_dt = utilities.get_ist_now_datetime()
+        applicable_token_expiry_dt = TokenPolicy.get_token_expiry_dt(
+            ist_dt= ist_now_dt
+        )
+
         token_repo = TokenRepository()
+        applicable_token = token_repo.get_token_by_date(
+            target_date= applicable_token_expiry_dt.date()
+        )
+        if applicable_token:
+            
+            # token_repo.create_token()
+            pass 
+            # update token
+        else:
+            # create token
+            utc_updated_at = utilities.get_utc_now_datetime()
+            token = Token(
+                token_date = applicable_token_expiry_dt.date(),
+                access_token = access_token,
+                request_token = request_token,
+                utc_updated_at = utc_updated_at,
+                utc_token_expiry = datetime | None 
+            )
+            pass 
         token_repo.create_update_token(
             request_token= request_token,
             access_token= access_token,
@@ -64,7 +89,7 @@ class VendorAuthFlowService:
 class TokenPolicy:
 
     @staticmethod
-    def get_token_expiry(ist_dt : datetime):    
+    def get_token_expiry_dt(ist_dt : datetime)->datetime:    
         ist_hour = ist_dt.hour 
         if ist_hour >= 6 and ist_hour <= 24:
             token_expiry_datetime = ist_dt + timedelta(days= 1)
@@ -74,8 +99,23 @@ class TokenPolicy:
 
         return token_expiry_datetime
 
+    # @staticmethod
+    # def get_applicable_token(ist_dt : datetime):    
+    #     ist_hour = ist_dt.hour 
+    #     if ist_hour >= 6 and ist_hour <= 24:
+    #         token_expiry_datetime = ist_dt + timedelta(days= 1)
+    #         token_expiry_datetime = token_expiry_datetime.replace(hour=6, minute=0, second=0) 
+    #     elif ist_hour < 6:
+    #         token_expiry_datetime = ist_dt.replace(hour=6, minute=0, second=0)
+
+    #     return token_expiry_datetime
+
 
 class TokenService:
+
+
+    # @staticmethod
+    # def get_applicable
 
     @staticmethod
     def create_token():
@@ -94,7 +134,7 @@ class TokenService:
 
     def get_token():
 
-        ist_now = utilities.get_ist_datetime()
+        ist_now = utilities.get_ist_now_datetime()
         curr_date = ist_now.date()
 
         if curr_date.hour < 6:
