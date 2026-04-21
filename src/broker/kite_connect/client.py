@@ -45,7 +45,9 @@ class VendorAPIClient:
     @classmethod
     def attach_access_token_from_db(cls):
         token_repo = TokenRepository()
-        existing_token = token_repo.get_todays_token()
+        existing_token = token_repo.get_token_by_date(
+            target_date= 
+        )
         if existing_token:
             cls.client.set_access_token(existing_token.access_token)
             print(f"access_token attatched from db : {cls.client.access_token}")
@@ -55,8 +57,8 @@ class VendorAPIClient:
 
     @classmethod
     def get_portfolio_holdings(cls):
-        if cls.client.access_token is None:
-            cls.attach_access_token_from_db()
+        # if cls.client.access_token is None:
+        #     cls.attach_access_token_from_db()
         holdings : List = cls.client.holdings()
         return holdings
 

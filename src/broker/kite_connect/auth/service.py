@@ -39,7 +39,7 @@ class VendorAuthFlowService:
     @staticmethod
     def create_update_token(request_token, access_token):
         ist_now_dt = utilities.get_ist_now_datetime()
-        applicable_token_expiry_dt = TokenPolicy.get_token_expiry_dt(
+        applicable_token_expiry_dt = TokenPolicy.get_applicable_ist_token_expiry(
             ist_dt= ist_now_dt
         )
 
@@ -48,10 +48,18 @@ class VendorAuthFlowService:
             target_date= applicable_token_expiry_dt.date()
         )
         if applicable_token:
-            
-            # token_repo.create_token()
-            pass 
             # update token
+            utc_updated_at = utilities.get_utc_now_datetime()
+            token = Token(
+                token_date = applicable_token_expiry_dt.date(),
+                access_token = access_token,
+                request_token = request_token,
+                utc_updated_at = utc_updated_at,
+                utc_token_expiry = applicable_token_expiry_dt
+            )
+            token_repo.update_token(
+                token= token
+            )
         else:
             # create token
             utc_updated_at = utilities.get_utc_now_datetime()
@@ -60,14 +68,12 @@ class VendorAuthFlowService:
                 access_token = access_token,
                 request_token = request_token,
                 utc_updated_at = utc_updated_at,
-                utc_token_expiry = datetime | None 
+                utc_token_expiry = applicable_token_expiry_dt
             )
-            pass 
-        token_repo.create_update_token(
-            request_token= request_token,
-            access_token= access_token,
-            target_date= token_date
-        )
+            token_repo.create_token(
+                token= token
+            )
+            
 
     @staticmethod 
     def is_app_authenticated():
@@ -89,7 +95,7 @@ class VendorAuthFlowService:
 class TokenPolicy:
 
     @staticmethod
-    def get_token_expiry_dt(ist_dt : datetime)->datetime:    
+    def get_applicable_ist_token_expiry(ist_dt : datetime)->datetime:    
         ist_hour = ist_dt.hour 
         if ist_hour >= 6 and ist_hour <= 24:
             token_expiry_datetime = ist_dt + timedelta(days= 1)

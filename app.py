@@ -42,9 +42,9 @@ def vendor_token():
     )
     # vendor_access_token = {}
     # vendor_access_token["access_token"] = "98hujiop"
-    current_date = utilities.get_ist_date()
-    VendorAuthFlowService.save_token(
-        token_date = current_date,
+
+    VendorAuthFlowService.create_update_token(
+        # token_date = current_date,
         request_token = vendor_request_token,
         access_token = vendor_access_token["access_token"]
     )
