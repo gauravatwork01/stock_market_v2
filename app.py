@@ -2,56 +2,49 @@ import json
 import os
 import requests
 from flask import Flask, Response, redirect, render_template, url_for, request
-from src.broker.kite_connect.auth.service import VendorAPIClientService, VendorAuthFlowService
-from src.broker.kite_connect.portfolio.service import PortfolioService
+# from src.broker.kite_connect.auth.service import VendorAPIClientService, VendorAuthFlowService
+# from src.broker.kite_connect.portfolio.service import PortfolioService
 from utilities import utilities
 from google.cloud import bigquery
+from domains.vendor_auth.auth_services import VendorAuthFlowService
+
+from domains.vendor_auth.auth_apis import auth_bp
+from domains.portfolio.portfolio_apis import portfolio_bp
 
 app = Flask(__name__)
 
-@app.route("/app")
-def stock_app():
-    return render_template("home.html")
-
-
-@app.route("/")
-def start_page():
-    return redirect(url_for("home_page_endpoint"))
-
-
-@app.route("/home", endpoint="home_page_endpoint")
+@app.route("/", endpoint="home_page_endpoint")
 def home_page():
-    is_app_authenticated = VendorAuthFlowService.is_app_authenticated()
-    if is_app_authenticated:
-        holdings = PortfolioService.get_holdings()
-        return render_template("home.html", is_app_authenticated= is_app_authenticated, holdings= holdings)
+    is_app_authenticated = VendorAuthFlowService.is_app_authenticated() 
+    if is_app_authenticated is True:
+        return redirect(url_for("portfolio.portfolio_endpoint"))
     else:
-        return redirect(url_for("vendor_login_endpoint"))
+        return redirect(url_for("auth.vendor_login_endpoint"))
+
+app.register_blueprint(auth_bp)
+app.register_blueprint(portfolio_bp)
+
+@app.before_request
+def auth_middleware():
+    if request.path.startswith("/auth"):
+        return
+    else:
+        if VendorAuthFlowService.is_app_authenticated() is False:
+            return redirect(url_for("auth.vendor_login_endpoint"))
 
 
-@app.route("/vendor_login", endpoint="vendor_login_endpoint")
-def vendor_login():
-    login_url = VendorAPIClientService.get_login_url()
-    return redirect(login_url)
 
-@app.route("/vendor_request_token", endpoint="vendor_request_token")
-def vendor_token():
-    vendor_request_token = request.args.get("request_token")
-    vendor_access_token = VendorAPIClientService.get_access_token(
-        request_token= vendor_request_token
-    )
-    # vendor_access_token = {}
-    # vendor_access_token["access_token"] = "98hujiop"
 
-    VendorAuthFlowService.create_update_token(
-        # token_date = current_date,
-        request_token = vendor_request_token,
-        access_token = vendor_access_token["access_token"]
-    )
-    VendorAPIClientService.attach_access_token(
-        access_token= vendor_access_token["access_token"]
-    )
-    return redirect(url_for("home_page_endpoint"))
+
+# @app.route("/home", endpoint="home_page_endpoint")
+# def home_page():
+#     is_app_authenticated = VendorAuthFlowService.is_app_authenticated()
+#     if is_app_authenticated:
+#         holdings = PortfolioService.get_holdings()
+#         return render_template("home.html", is_app_authenticated= is_app_authenticated, holdings= holdings)
+#     else:
+#         return redirect(url_for("vendor_login_endpoint"))
+
 
 
 # VendorAPIClientService.attach_access_token(

@@ -7,6 +7,8 @@ from utilities import utilities
 from zoneinfo import ZoneInfo
 from typing import List
 from src.broker.kite_connect.auth.models import Token
+
+
 class VendorAPIClientService:
 
     @staticmethod
@@ -45,7 +47,7 @@ class VendorAuthFlowService:
 
         token_repo = TokenRepository()
         applicable_token = token_repo.get_token_by_date(
-            target_date= applicable_token_expiry_dt.date()
+            utc_target_date= applicable_token_expiry_dt.date()
         )
         if applicable_token:
             # update token

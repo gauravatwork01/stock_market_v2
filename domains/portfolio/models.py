@@ -23,6 +23,12 @@ class Holding(BaseModel):
 
     @computed_field
     @property
-    def current_value(self) -> float:
+    def total_current_value(self) -> float:
         return self.quantity * self.last_price
+
+    @computed_field
+    @property
+    def percent_chg(self) -> float:
+        diff = (self.total_current_value - self.total_invested)/(self.total_invested)
+        return round(diff*100, 2)
 

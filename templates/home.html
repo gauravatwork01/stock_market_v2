@@ -66,20 +66,21 @@
                                 <th class="col">total buying price</th>
                                 <th class="col text-wrap">last price in market</th>
                                 <th class="col text-wrap">Total current price</th>
-                                <th class="col text-wrap">Diff</th>
+                                <th class="col text-wrap">% chg</th>
                               </tr>
                             </thead>
                             <tbody>
                                 {% for each_holding in holdings %}
-                                <tr>
-                                  <th scope="row">{{ each_holding.sr_num }}</th>
-                                  <td>{{ each_holding.stock }}</td>
+                                <!-- <tr> -->
+                                <tr class="{{ 'table-success' if each_holding.percent_chg > 0 else 'table-danger' }}">
+                                  <th scope="row">#</th>
+                                  <td>{{ each_holding.tradingsymbol }}</td>
                                   <td>{{ each_holding.quantity }}</td>
-                                  <td>{{ each_holding.buying_avg_price }}</td>
-                                  <td>{{ each_holding.quantity*each_holding.buying_avg_price }}</td>
-                                  <td>{{ each_holding.last_price_in_market }}</td>
-                                  <td>{{ each_holding.quantity*each_holding.last_price_in_market }}</td>
-                                  <td>{{ each_holding.quantity*each_holding.last_price_in_market }}</td>
+                                  <td>{{ each_holding.average_price }}</td>
+                                  <td>{{ each_holding.total_invested }}</td>
+                                  <td>{{ each_holding.last_price }}</td>
+                                  <td>{{ each_holding.total_current_value }}</td>
+                                  <td>{{ each_holding.percent_chg }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

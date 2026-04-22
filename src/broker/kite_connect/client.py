@@ -42,17 +42,17 @@ class VendorAPIClient:
         return access_token
 
 
-    @classmethod
-    def attach_access_token_from_db(cls):
-        token_repo = TokenRepository()
-        existing_token = token_repo.get_token_by_date(
-            target_date= 
-        )
-        if existing_token:
-            cls.client.set_access_token(existing_token.access_token)
-            print(f"access_token attatched from db : {cls.client.access_token}")
-        else:
-            raise RuntimeError("access token is not available in db, login-again")
+    # @classmethod
+    # def attach_access_token_from_db(cls):
+    #     token_repo = TokenRepository()
+    #     existing_token = token_repo.get_token_by_date(
+    #         target_date= 
+    #     )
+    #     if existing_token:
+    #         cls.client.set_access_token(existing_token.access_token)
+    #         print(f"access_token attatched from db : {cls.client.access_token}")
+    #     else:
+    #         raise RuntimeError("access token is not available in db, login-again")
 
 
     @classmethod

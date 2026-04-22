@@ -35,7 +35,7 @@ class TokenRepository:
         )
 
         tokens = get_bigquery_client().query(query, job_config=job_config).result()
-        return tokens[0]
+        # return tokens[0]
     
 
     def update_token(self,token : Token):

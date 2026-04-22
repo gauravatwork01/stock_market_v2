@@ -3,9 +3,11 @@
 from src.broker.kite_connect.client import VendorAPIClient
 from typing import List 
 import polars as pl 
-from src.broker.kite_connect.portfolio.models import Holding
+# from src.broker.kite_connect.portfolio.models import Holding
+from domains.portfolio.models import Holding
 from src.broker.kite_connect.auth.repository import TokenRepository
-from src.broker.kite_connect.auth.service import TokenPolicy, TokenService
+# from src.broker.kite_connect.auth.service import TokenPolicy
+from domains.vendor_auth.auth_services import TokenPolicy
 from utilities import utilities
 from datetime import datetime, timezone
 
@@ -33,11 +35,11 @@ class PortfolioService:
             each_holding_model = Holding(**each_holding)
             holding_models.append(each_holding_model)
 
+        return holding_models
+        # holdings_df = pl.DataFrame(holdings)
 
-        holdings_df = pl.DataFrame(holdings)
 
-
-        pass 
+        # pass 
 
 
 
