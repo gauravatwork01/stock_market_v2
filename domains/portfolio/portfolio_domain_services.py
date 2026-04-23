@@ -10,6 +10,15 @@ from src.broker.kite_connect.auth.repository import TokenRepository
 from domains.vendor_auth.auth_services import TokenPolicy
 from utilities import utilities
 from datetime import datetime, timezone
+import polars as pl
+
+class PortfolioDomainService:
+
+    def compute_portfolio_metrics(holdings: list[dict]):
+        df = pl.DataFrame(holdings)
+        pass 
+     
+
 
 class PortfolioService:
 

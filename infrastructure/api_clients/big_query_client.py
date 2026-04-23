@@ -1,6 +1,5 @@
 
 
-
 from google.cloud import bigquery
 
 
@@ -20,6 +19,25 @@ def get_tokens_table_path():
     return f"{client.project}.datawarehouse.tokens"
 
 # TOKENS_TABLE_PATH = f"{bigquery_client.project}.datawarehouse.tokens"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

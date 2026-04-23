@@ -9,34 +9,34 @@ from typing import List
 from src.broker.kite_connect.auth.models import Token
 
 
-class VendorAPIClientService:
+# class VendorAPIClientService:
 
-    @staticmethod
-    def get_login_url():
-        login_url = VendorAPIClient.get_login_url()
-        return login_url
+#     @staticmethod
+#     def get_login_url():
+#         login_url = VendorAPIClient.get_login_url()
+#         return login_url
 
-    @staticmethod
-    def get_access_token(request_token):
-        access_token = VendorAPIClient.get_access_token(request_token= request_token)
-        return access_token
+#     @staticmethod
+#     def get_access_token(request_token):
+#         access_token = VendorAPIClient.get_access_token(request_token= request_token)
+#         return access_token
 
-    @staticmethod
-    def attach_access_token(access_token):
-        VendorAPIClient.attach_access_token(access_token= access_token)
+#     @staticmethod
+#     def attach_access_token(access_token):
+#         VendorAPIClient.attach_access_token(access_token= access_token)
 
-    @staticmethod
-    def attach_access_token_from_db():
-        token_repo = TokenRepository()
-        ist_now = utilities.get_ist_now_datetime()
-        token_repo.token_exists_for_date(
-            target_date= ist_now.date()
-        )
-
-
+#     @staticmethod
+#     def attach_access_token_from_db():
+#         token_repo = TokenRepository()
+#         ist_now = utilities.get_ist_now_datetime()
+#         token_repo.token_exists_for_date(
+#             target_date= ist_now.date()
+#         )
 
 
-class VendorAuthFlowService:
+
+
+class VendorAuthDomainService:
 
     @staticmethod
     def create_update_token(request_token, access_token):
@@ -77,19 +77,7 @@ class VendorAuthFlowService:
             )
             
 
-    @staticmethod 
-    def is_app_authenticated():
-        is_app_authenticated = False
-        
-        ist_now = utilities.get_ist_now_datetime()
-        token_repo = TokenRepository()
-        latest_token = token_repo.get_latest_token()
-        ist_token_expiry = latest_token.ist_token_expiry
-        if ist_token_expiry:
-            if ist_token_expiry > ist_now:
-                is_app_authenticated = True 
-        
-        return is_app_authenticated#, latest_token
+    
 
 
 
@@ -107,23 +95,10 @@ class TokenPolicy:
 
         return token_expiry_datetime
 
-    # @staticmethod
-    # def get_applicable_token(ist_dt : datetime):    
-    #     ist_hour = ist_dt.hour 
-    #     if ist_hour >= 6 and ist_hour <= 24:
-    #         token_expiry_datetime = ist_dt + timedelta(days= 1)
-    #         token_expiry_datetime = token_expiry_datetime.replace(hour=6, minute=0, second=0) 
-    #     elif ist_hour < 6:
-    #         token_expiry_datetime = ist_dt.replace(hour=6, minute=0, second=0)
 
-    #     return token_expiry_datetime
 
 
 class TokenService:
-
-
-    # @staticmethod
-    # def get_applicable
 
     @staticmethod
     def create_token():

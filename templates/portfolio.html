@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <section class="app-container">
+        <section class="app-header container-fluid">
+            
+            <div class="row">
+
+                <div class="col-2 text-bg-light p-3">
+                    <form action="/vendor_login" method="GET">
+                        <button type="submit" class="btn btn-warning">Refresh-Token</button>
+                    </form>
+                </div>
+
+                <div class="col-8 text-bg-light p-3">
+                    Block 1 (10 columns)
+                </div>
+            
+                <div class="col-2 text-bg-secondary p-3">
+                    {% if is_app_authenticated %}
+                        <button type="button" class="btn btn-success">App-authent.</button>
+                    {% else %}
+                        <button type="button" class="btn btn-danger">App not authent.</button>
+                    {% endif %}
+                </div>
+            
+            </div>
+
+        </section>
+        <section class="app-blocks">
+            <section class="list">
+
+                <h3>Stock List</h3>
+                <ul class="list-container">
+                    <div id="loading">
+                        <div id="loader"></div>
+                        <span>Please wait !</span>
+                    </div>
+                </ul>
+            </section>
+
+            <div class="graph_and_detail">
+                <section class="portfolio_holdings">
+                    <h3>Holdings</h3>
+                    <div class="holdings-container">
+                        <table class="table table-dark table-sm table-striped fw-normal fs-6" >
+                            <thead class="table-light">
+                              <tr>
+                                <!-- <th scope="col">#</th> -->
+                                <th class="col" style="width: 60px;">
+                                    Num
+                                </th>
+                                <th class="col">stock</th>
+                                <th class="col">quantity</th>
+                                <th class="col">buying avg price</th>
+                                <th class="col">total buying price</th>
+                                <th class="col text-wrap">last price in market</th>
+                                <th class="col text-wrap">Total current price</th>
+                                <th class="col text-wrap">% chg</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                {% for each_holding in holdings %}
+                                <!-- <tr> -->
+                                <tr class="{{ 'table-success' if each_holding.percent_chg > 0 else 'table-danger' }}">
+                                  <th scope="row">#</th>
+                                  <td>{{ each_holding.tradingsymbol }}</td>
+                                  <td>{{ each_holding.quantity }}</td>
+                                  <td>{{ each_holding.average_price }}</td>
+                                  <td>{{ each_holding.total_invested }}</td>
+                                  <td>{{ each_holding.last_price }}</td>
+                                  <td>{{ each_holding.total_current_value }}</td>
+                                  <td>{{ each_holding.percent_chg }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                          </table>
+                        <!-- <div id="loading">
+                            <div id="loader"></div>
+                            <span>Please wait !</span>
+                        </div> -->
+                    </div>
+                    <div class="duration">
+                        <ul>
+                            <li>
+                                <input type="radio" id="1mo" name="time-duration" value="1mo" checked>
+                                <label for="1mo">
+                                    1 Month
+                                </label>
+                            </li>
+                            <li>
+                                <input type="radio" id="3mo" name="time-duration" value="3mo">
+                                <label for="3mo">
+                                    3 Month
+                                </label>
+                            </li>
+
+                            <li>
+                                <input type="radio" id="1y" name="time-duration" value="1y">
+                                <label for="1y">
+                                    1 Year
+                                </label>
+                            </li>
+                            <li>
+                                <input type="radio" id="5y" name="time-duration" value="5y">
+                                <label for="5y">
+                                    5 Year
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+                <section class="detail">
+                    <h3>Details</h3>
+                    <div class="detail-container">
+                        <div id="loading">
+                            <div id="loader"></div>
+                            <span>Please wait !</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </section>
+
+
+    <script type="module" src="{{ url_for('static', filename='index.js') }}"></script>
+</body>
+
+</html>

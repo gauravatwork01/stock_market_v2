@@ -1,22 +1,15 @@
 
-from src.config.bigquery import bigquery, get_bigquery_client, get_tokens_table_path
 from datetime import date, timedelta
-from src.broker.kite_connect.auth.models import Token
 from utilities import utilities
+from domains.vendor_auth.models import Token
+
+from infrastructure.api_clients.big_query_client import bigquery,\
+get_bigquery_client, get_tokens_table_path
 
 
 
 
-def get_valid_token_date():
-    ist_now = utilities.get_ist_now_datetime()
-    token_date = ist_now.date()
-    if ist_now.hour < 6:
-        token_date = token_date - timedelta(days= 1)
-    return token_date
-
-
-
-class TokenRepository:
+class DBTokenRepository:
 
     def create_token(self, token : Token):
         query = f"""
@@ -35,7 +28,7 @@ class TokenRepository:
         )
 
         tokens = get_bigquery_client().query(query, job_config=job_config).result()
-        # return tokens[0]
+
     
 
     def update_token(self,token : Token):
