@@ -2,6 +2,7 @@
 from infrastructure.api_clients.kite_connect_client import KiteConnectAPIClient
 from domains.vendor_auth.vendor_auth_domain_services import VendorAuthDomainService
 from utilities import utilities
+from infrastructure.token_repository import DBTokenRepository
 
 class VendorAuthApplicationService:
 
@@ -33,7 +34,7 @@ class VendorAuthApplicationService:
         is_app_authenticated = False
         
         ist_now = utilities.get_ist_now_datetime()
-        token_repo = TokenRepository()
+        token_repo = DBTokenRepository()
         latest_token = token_repo.get_latest_token()
         ist_token_expiry = latest_token.ist_token_expiry
         if ist_token_expiry:

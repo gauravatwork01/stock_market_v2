@@ -7,19 +7,17 @@ from datetime import datetime, timezone
 from kiteconnect import KiteConnect
 from google.cloud import bigquery
 from typing import List
-from src.broker.kite_connect.auth.repository import TokenRepository
-# from src.broker.kite_connect.auth.service import VendorAuthFlowService
 
 logger = logging.getLogger(__name__)
 
 API_KEY = "qjj8i06fi5r3s8ru"
 API_SECRET = "hxqjy14n6rvk6vkqcllefhlabkbv13yx"
 
-
+kc_client = KiteConnect(api_key=API_KEY)
 class KiteConnectAPIClient:
 
     def __init__(self):
-        self.client = KiteConnect(api_key=API_KEY)
+        self.client = kc_client
 
         # attach sub-APIs
         self.login = LoginAPI(self.client)

@@ -9,7 +9,7 @@ class PortfolioApplicationService:
         kc_api_client = KiteConnectAPIClient()
         holdings : list[dict] = kc_api_client.portfolio.get_portfolio_holdings()
 
-        holdings = PortfolioDomainService.compute_portfolio_metrics(holdings)
+        holdings : list[dict] = PortfolioDomainService.compute_portfolio_metrics(holdings)
         return holdings 
 
 

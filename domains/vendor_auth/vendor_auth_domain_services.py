@@ -1,12 +1,14 @@
 
 
-from src.broker.kite_connect.client import VendorAPIClient
-from src.broker.kite_connect.auth.repository import TokenRepository
+# from src.broker.kite_connect.client import VendorAPIClient
+# from src.broker.kite_connect.auth.repository import TokenRepository
+from infrastructure.token_repository import DBTokenRepository
 from datetime import date, datetime, timedelta
 from utilities import utilities
 from zoneinfo import ZoneInfo
 from typing import List
-from src.broker.kite_connect.auth.models import Token
+from domains.vendor_auth.models import Token
+# from src.broker.kite_connect.auth.models import Token
 
 
 # class VendorAPIClientService:
@@ -45,7 +47,7 @@ class VendorAuthDomainService:
             ist_dt= ist_now_dt
         )
 
-        token_repo = TokenRepository()
+        token_repo = DBTokenRepository()
         applicable_token = token_repo.get_token_by_date(
             utc_target_date= applicable_token_expiry_dt.date()
         )
@@ -96,39 +98,4 @@ class TokenPolicy:
         return token_expiry_datetime
 
 
-
-
-class TokenService:
-
-    @staticmethod
-    def create_token():
-        token_repo = TokenRepository()
-        token_repo.create_token_for_date
-        pass 
-
-    @staticmethod
-    def save_token(token_date:date,request_token, access_token):
-        token_repo = TokenRepository()
-        token_repo.create_update_token(
-            request_token= request_token,
-            access_token= access_token,
-            target_date= token_date
-        )
-
-    def get_token():
-
-        ist_now = utilities.get_ist_now_datetime()
-        curr_date = ist_now.date()
-
-        if curr_date.hour < 6:
-            valid_token_date = curr_date - timedelta(days= 1)
-        else:
-            valid_token_date = curr_date
-
-        token_repo = TokenRepository()
-        existing_token = token_repo.get_token_for_date(
-            target_date= valid_token_date
-        )
-
-        return valid_token_date 
 
