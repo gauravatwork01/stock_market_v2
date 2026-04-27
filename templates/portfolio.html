@@ -22,8 +22,15 @@
                     </form>
                 </div>
 
-                <div class="col-8 text-bg-light p-3">
+                <div class="col-4 text-bg-light p-3">
                     Block 1 (10 columns)
+                </div>
+
+                <div class="col-2 text-bg-light p-3">
+                    <a href="{{ url_for('api.stock_listing') }}">
+                        <!-- <button>Go to Other Page</button> -->
+                        <button type="button" class="btn btn-success">Stock Listing</button>
+                    </a>
                 </div>
             
                 <div class="col-2 text-bg-secondary p-3">

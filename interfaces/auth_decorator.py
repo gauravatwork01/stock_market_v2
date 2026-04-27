@@ -2,7 +2,7 @@
 from functools import wraps
 # from flask import request, jsonify, g, current_app
 from utilities import utilities
-from infrastructure.token_repository import DBTokenRepository
+from infrastructure.repositories.token_repository import DBTokenRepository
 from infrastructure.api_clients.kite_connect_client import KiteConnectAPIClient
 from flask import Blueprint, redirect, request, render_template 
 

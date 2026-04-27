@@ -2,7 +2,7 @@
 from infrastructure.api_clients.kite_connect_client import KiteConnectAPIClient
 from domains.vendor_auth.vendor_auth_domain_services import VendorAuthDomainService
 from utilities import utilities
-from infrastructure.token_repository import DBTokenRepository
+from infrastructure.repositories.token_repository import DBTokenRepository
 
 class VendorAuthApplicationService:
 

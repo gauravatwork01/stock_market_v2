@@ -25,11 +25,6 @@
                 <div class="col-8 text-bg-light p-3">
                     Block 1 (10 columns)
                 </div>
-
-                <a href="{{ url_for('stock_listing') }}">
-                    <!-- <button>Go to Other Page</button> -->
-                    <button type="button" class="btn btn-success">Stock Listing</button>
-                </a>
             
                 <div class="col-2 text-bg-secondary p-3">
                     {% if is_app_authenticated %}
@@ -56,7 +51,7 @@
 
             <div class="graph_and_detail">
                 <section class="portfolio_holdings">
-                    <h3>Holdings</h3>
+                    <h3>Stock Listing</h3>
                     <div class="holdings-container">
                         <table class="table table-dark table-sm table-striped fw-normal fs-6" >
                             <thead class="table-light">

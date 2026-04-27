@@ -2,7 +2,7 @@
 
 # from src.broker.kite_connect.client import VendorAPIClient
 # from src.broker.kite_connect.auth.repository import TokenRepository
-from infrastructure.token_repository import DBTokenRepository
+from infrastructure.repositories.token_repository import DBTokenRepository
 from datetime import date, datetime, timedelta
 from utilities import utilities
 from zoneinfo import ZoneInfo

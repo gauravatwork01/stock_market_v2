@@ -3,6 +3,7 @@ from flask import Blueprint, redirect, request, render_template
 
 from app.services.vendor_auth_app_service import VendorAuthApplicationService
 from app.services.portfolio_app_service import PortfolioApplicationService
+from app.services.instruments_app_service import InstrumentsApplicationService
 from interfaces.auth_decorator import app_authentication_required
 
 
@@ -24,6 +25,18 @@ def vendor_request_token():
         request_token= request.args.get("request_token")
     )
     return redirect("/portfolio")
+
+
+
+@api_bp.route("/stock_listing", endpoint="stock_listing")
+@app_authentication_required
+def portfolio():
+    
+    stocks = InstrumentsApplicationService.get_all_stocks()
+    return render_template("stocks_listing.html", stocks = stocks)
+    # else:
+    #     return render_template("/auth/vendor_login")
+
 
 
 @api_bp.route("/portfolio")

@@ -23,7 +23,15 @@ class KiteConnectAPIClient:
         self.login = LoginAPI(self.client)
         self.token = TokenAPI(self.client)
         self.portfolio = PortfolioAPI(self.client)
+        self.instruments = InstrumentsAPI(self.client)
 
+class InstrumentsAPI:
+    def __init__(self, client) -> None:
+        self.client = client
+
+    def get_all_stocks(self):
+        data = self.client.instruments(exchange = None)   
+        return data 
 
 
 class LoginAPI:
