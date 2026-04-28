@@ -1,7 +1,7 @@
 from infrastructure.api_clients.kite_connect_client import KiteConnectAPIClient
 from domains.portfolio.portfolio_domain_services import PortfolioDomainService
 
-class PortfolioApplicationService:
+class HoldingApplicationService:
 
 
     def get_holdings():
