@@ -6,9 +6,9 @@ from infrastructure.api_clients.kite_connect_client import KiteConnectAPIClient
 from infrastructure.api_clients.big_query_client import get_bigquery_client
 
 
-class StorageInstrumentsRepo:
-class NSEInstrumentsRepo:
-class KiteInstrumentsRepo:
+# class StorageInstrumentsRepo:
+# class NSEInstrumentsRepo:
+# class KiteInstrumentsRepo:
 
 
 
