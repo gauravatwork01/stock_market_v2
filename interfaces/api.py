@@ -5,7 +5,7 @@ from app.services.vendor_auth_app_service import VendorAuthApplicationService
 from app.services.portfolio_app_service import PortfolioApplicationService
 from app.services.instruments_app_service import InstrumentsApplicationService
 from interfaces.auth_decorator import app_authentication_required
-
+from interfaces import api_controller
 
 api_bp = Blueprint("api", __name__)
 
@@ -15,7 +15,7 @@ def home_page():
 
 @api_bp.route("/auth/vendor_login")
 def vendor_login():
-    login_url = VendorAuthApplicationService.get_vendor_login_url()
+    login_url = api_controller.get_kite_login_url()
     return redirect(login_url)
 
 
@@ -29,7 +29,7 @@ def vendor_request_token():
 
 
 @api_bp.route("/stock_listing", endpoint="stock_listing")
-@app_authentication_required
+@api_controller.app_authentication_required
 def portfolio():
     
     stocks = InstrumentsApplicationService.get_all_stocks()
@@ -39,14 +39,12 @@ def portfolio():
 
 
 
-@api_bp.route("/portfolio")
-@app_authentication_required
-def portfolio():
-    # VendorAuthAppService.fetch_and_store_access_token()
-    is_app_authenticated = VendorAuthApplicationService.is_app_authenticated()
-    if is_app_authenticated is True:
-        holdings = PortfolioApplicationService.get_holdings()
-        return render_template("portfolio.html", holdings = holdings)
-    else:
-        return render_template("/auth/vendor_login")
+
+
+@api_bp.route("/holdings")
+@api_controller.app_authentication_required
+def holdings():    
+    holdings = api_controller.get_holdings()
+    return render_template("portfolio.html", holdings = holdings)
+
 

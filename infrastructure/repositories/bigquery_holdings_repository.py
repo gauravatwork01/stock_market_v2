@@ -10,13 +10,7 @@ class BigQueryHoldingsRepository:
 
 
     def get_all_holdings(self) -> List[Holding]:
-        query = f"""
-            SELECT token_date, access_token, request_token, updated_at, token_expiry
-            FROM `{get_tokens_table_path()}`
-            ORDER BY token_date DESC
-            LIMIT 1
-        """
-        pass 
+        return [] 
 
 
 

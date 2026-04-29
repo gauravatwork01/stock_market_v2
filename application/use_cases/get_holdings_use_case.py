@@ -4,8 +4,9 @@ from typing import List
 
 # from domain.holding import Holding
 # from domain.repositories.holding_repository import HoldingRepository
-from infrastructure.repositories.
-
+from infrastructure.repositories.bigquery_holdings_repository import BigQueryHoldingsRepository
+from domains.holdings.models import Holding
+from infrastructure.providers.kite_connect.kite_holdings_provider import KiteHoldingsProvider
 class GetHoldingsUseCase:
     """
     Use case:
@@ -16,27 +17,17 @@ class GetHoldingsUseCase:
 
     def __init__(
         self,
-        holding_repo: HoldingRepository,
-        kite_provider,  # ideally type: PortfolioProvider / HoldingsProvider
+        holdings_repo: BigQueryHoldingsRepository,
+        kite_provider: KiteHoldingsProvider,  
     ):
-        self.holding_repo = holding_repo
+        self.holdings_repo = holdings_repo
         self.kite_provider = kite_provider
 
-    def execute(self, force_refresh: bool = False) -> List[Holding]:
-        # 1. Try repo
-        if not force_refresh:
-            holdings = self.holding_repo.get_all()
-            if holdings:
-                return holdings
 
-        # 2. Fetch from provider
-        portfolio = self.kite_provider.fetch_portfolio()
-        holdings = portfolio.holdings
-
-        # 3. Persist
-        if holdings:
-            self.holding_repo.save_all(holdings)
-
+    def get_holdings(self):
+        holdings = self.holdings_repo.get_all_holdings()
+        if not holdings:
+            holdings = self.kite_provider.get_all_holdings()
         return holdings
 
 
