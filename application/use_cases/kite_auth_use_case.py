@@ -10,8 +10,7 @@ class KiteAuthUseCase:
         self.kite_client = kite_client
         self.token_repo = token_repo
 
-    def authenticate(self):
-        latest_token = self.token_repo.get_latest_token()
+    def get_login_url(self):
         pass 
 
 

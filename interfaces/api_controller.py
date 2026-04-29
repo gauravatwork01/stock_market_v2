@@ -13,7 +13,7 @@ from infrastructure.repositories.bigquery_token_repository import BigQueryTokenR
 bigquery_client = bigquery.Client()
 API_KEY = "qjj8i06fi5r3s8ru"
 kc_client = KiteConnect(api_key=API_KEY)
-# API_SECRET = "hxqjy14n6rvk6vkqcllefhlabkbv13yx"
+API_SECRET = "hxqjy14n6rvk6vkqcllefhlabkbv13yx"
 
 def app_authentication_required(f):
     @wraps(f)
