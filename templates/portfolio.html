@@ -78,14 +78,13 @@
                             </thead>
                             <tbody>
                                 {% for each_holding in holdings %}
-                                <!-- <tr> -->
                                 <tr class="{{ 'table-success' if each_holding.percent_chg > 0 else 'table-danger' }}">
-                                  <th scope="row">#</th>
-                                  <td>{{ each_holding.tradingsymbol }}</td>
+                                  <th scope="row">{{ loop.index }}</th>
+                                  <td>{{ each_holding.symbol }}</td>
                                   <td>{{ each_holding.quantity }}</td>
-                                  <td>{{ each_holding.average_price }}</td>
+                                  <td>{{ each_holding.avg_acquisition_price }}</td>
                                   <td>{{ each_holding.total_invested }}</td>
-                                  <td>{{ each_holding.last_price }}</td>
+                                  <td>{{ each_holding.recent_trade_price }}</td>
                                   <td>{{ each_holding.total_current_value }}</td>
                                   <td>{{ each_holding.percent_chg }}</td>
                                 </tr>

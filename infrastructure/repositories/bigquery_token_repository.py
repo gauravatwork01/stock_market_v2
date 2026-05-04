@@ -12,23 +12,22 @@ get_bigquery_client, get_tokens_table_path
 
 class BigQueryTokenRepository:
 
-    def __init__(self, bigquery_client, token_table_path) -> None:
+    def __init__(self, bigquery_client) -> None:
         self.client = bigquery_client
-        self.token_table_path = token_table_path
+        self.token_table_path = f"{bigquery_client.project}.datawarehouse.tokens"
 
     def create_token(self, token : Token):
         query = f"""
             INSERT INTO `{self.token_table_path}` 
-            (token_date, access_token, request_token, updated_at, token_expiry)
-            VALUES (@date, @access_token, @request_token, @updated_at, @token_expiry)
+            (ist_expiry_dt, request_token, access_token, updated_at_ts)
+            VALUES (@ist_expiry_dt, @request_token, @access_token, @updated_at_ts)
         """
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
-                bigquery.ScalarQueryParameter("date", "DATE", token.token_date),
-                bigquery.ScalarQueryParameter("access_token", "STRING", token.access_token),
+                bigquery.ScalarQueryParameter("ist_expiry_dt", "DATETIME", token.ist_expiry_dt),
                 bigquery.ScalarQueryParameter("request_token", "STRING", token.request_token),
-                bigquery.ScalarQueryParameter("updated_at", "TIMESTAMP", token.utc_updated_at),
-                bigquery.ScalarQueryParameter("token_expiry", "TIMESTAMP", token.utc_token_expiry),
+                bigquery.ScalarQueryParameter("access_token", "STRING", token.access_token),
+                bigquery.ScalarQueryParameter("updated_at_ts", "TIMESTAMP", token.updated_at_ts)
             ]
         )
 
@@ -40,24 +39,51 @@ class BigQueryTokenRepository:
         query = f"""
             UPDATE `{self.token_table_path}`
             SET
-            access_token = @access_token,
             request_token = @request_token,
-            updated_at = @updated_at,
-            token_expiry = @token_expiry
-            WHERE token_date = @token_date
+            access_token = @access_token,
+            updated_at_ts = @updated_at_ts
+            WHERE ist_expiry_dt = @ist_expiry_dt
         """
         job_config = bigquery.QueryJobConfig(
             query_parameters=[
-                bigquery.ScalarQueryParameter("token_date", "DATE", token.token_date),
-                bigquery.ScalarQueryParameter("access_token", "STRING", token.access_token),
                 bigquery.ScalarQueryParameter("request_token", "STRING", token.request_token),
-                bigquery.ScalarQueryParameter("updated_at", "TIMESTAMP", token.utc_updated_at),
-                bigquery.ScalarQueryParameter("token_expiry", "TIMESTAMP", token.utc_token_expiry),
+                bigquery.ScalarQueryParameter("access_token", "STRING", token.access_token),
+                bigquery.ScalarQueryParameter("updated_at_ts", "TIMESTAMP", token.updated_at_ts),
+                bigquery.ScalarQueryParameter("ist_expiry_dt", "DATETIME", token.ist_expiry_dt),
             ]
         )
 
         resp = self.client.query(query, job_config=job_config).result()
         return resp
+
+    def get_token_by_expiry_datetime(self, ist_datetime):
+        query = f"""
+            SELECT ist_expiry_dt, request_token, access_token, updated_at_ts
+            FROM `{self.token_table_path}`
+            WHERE ist_expiry_dt = @ist_expiry_dt
+            LIMIT 1
+        """
+        job_config = bigquery.QueryJobConfig(
+            query_parameters=[
+                bigquery.ScalarQueryParameter("ist_expiry_dt", "DATETIME", ist_datetime)
+            ]
+        )
+        query_job = self.client.query(query, job_config=job_config)
+        results = query_job.result()
+
+        rows = list(results)
+        if not rows:
+            return None
+
+        row = rows[0]
+
+        return Token(
+            ist_expiry_dt = row["ist_expiry_dt"],
+            request_token = row["request_token"],
+            access_token = row["access_token"],
+            updated_at_ts=row["updated_at_ts"]
+        )
+        
 
 
     def get_token_by_date(self, utc_target_date : date):
@@ -82,9 +108,9 @@ class BigQueryTokenRepository:
         row = rows[0]
 
         return Token(
-            token_date=row["token_date"],
-            access_token=row["access_token"],
-            request_token=row["request_token"],
+            token_date = row["token_date"],
+            access_token = row["access_token"],
+            request_token = row["request_token"],
             utc_updated_at=row["updated_at"],
             utc_token_expiry = row["token_expiry"]
         )

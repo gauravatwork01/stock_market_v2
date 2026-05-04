@@ -15,7 +15,7 @@ class KiteAuthProvider:
 
     def attach_access_token(self, access_token):
         self.kite_client.set_access_token(access_token)
-        print(f"access_token attatched : {self.client.access_token}")
+        print(f"access_token attatched : {self.kite_client.access_token}")
     
     def fetch_access_token(self,request_token, API_SECRET):
         session_dets = self.kite_client.generate_session(request_token, api_secret=API_SECRET)

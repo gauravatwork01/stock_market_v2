@@ -8,35 +8,6 @@ from utilities import utilities
 from zoneinfo import ZoneInfo
 from typing import List
 from domains.vendor_auth.models import Token
-# from src.broker.kite_connect.auth.models import Token
-
-
-# class VendorAPIClientService:
-
-#     @staticmethod
-#     def get_login_url():
-#         login_url = VendorAPIClient.get_login_url()
-#         return login_url
-
-#     @staticmethod
-#     def get_access_token(request_token):
-#         access_token = VendorAPIClient.get_access_token(request_token= request_token)
-#         return access_token
-
-#     @staticmethod
-#     def attach_access_token(access_token):
-#         VendorAPIClient.attach_access_token(access_token= access_token)
-
-#     @staticmethod
-#     def attach_access_token_from_db():
-#         token_repo = TokenRepository()
-#         ist_now = utilities.get_ist_now_datetime()
-#         token_repo.token_exists_for_date(
-#             target_date= ist_now.date()
-#         )
-
-
-
 
 class VendorAuthDomainService:
 

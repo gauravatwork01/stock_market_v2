@@ -2,7 +2,9 @@ from application.use_cases.get_holdings_use_case import GetHoldingsUseCase
 from infrastructure.repositories.bigquery_holdings_repository import BigQueryHoldingsRepository
 from domains.holdings.models import Holding
 from infrastructure.providers.kite_connect.kite_holdings_provider import KiteHoldingsProvider
-from infrastructure.providers.kite_connect.kite_login_provider import KiteLoginProvider
+# from infrastructure.providers.kite_connect.kite_login_provider import KiteLoginProvider
+from application.use_cases.kite_auth_use_case import KiteAuthUseCase
+from infrastructure.providers.kite_connect.kite_auth_provider import KiteAuthProvider
 from google.cloud import bigquery
 from functools import wraps
 from kiteconnect import KiteConnect
@@ -18,32 +20,29 @@ API_SECRET = "hxqjy14n6rvk6vkqcllefhlabkbv13yx"
 def app_authentication_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        global bigquery_client
-
-        is_app_authenticated = False
-        
-        ist_now = utilities.get_ist_now_datetime()
-        token_table_path = f"{bigquery_client.project}.datawarehouse.tokens"
-        token_repo = BigQueryTokenRepository(
-            bigquery_client= bigquery_client,
-            token_table_path= token_table_path
+        global kc_client, bigquery_client
+        kite_auth_provider = KiteAuthProvider(
+            kite_client = kc_client 
         )
-        latest_token = token_repo.get_latest_token()
-        ist_token_expiry = latest_token.ist_token_expiry
-        if ist_token_expiry:
-            if ist_token_expiry > ist_now:
-                is_app_authenticated = True 
-        
+        bigquery_token_repo = BigQueryTokenRepository(
+            bigquery_client= bigquery_client
+        )
+        kite_auth_service = KiteAuthUseCase(
+            kite_auth_provider = kite_auth_provider,
+            token_repo = bigquery_token_repo
+        )
+        is_app_authenticated, token = kite_auth_service.is_app_authenticated()
 
         if is_app_authenticated is False:
             return redirect("/auth/login")
         else:
-            # kc_api_client = KiteConnectAPIClient() 
-            kc_client.token.attach_access_token(
-                access_token = latest_token.access_token
+            kite_auth_provider = KiteAuthProvider(
+                kite_client= kc_client
+            )
+            kite_auth_provider.attach_access_token(
+                access_token = token.access_token
             )
             
-
         return f(*args, **kwargs)
 
     return wrapper
@@ -68,7 +67,34 @@ def get_holdings():
 
 
 def get_kite_login_url():
-    login_url = KiteLoginProvider(
-        kite_client= kc_client
-    ).get_login_url()
+    global kc_client, bigquery_client
+    kite_auth_provider = KiteAuthProvider(
+        kite_client = kc_client 
+    )
+    bigquery_token_repo = BigQueryTokenRepository(
+        bigquery_client= bigquery_client
+    )
+    kite_auth_service = KiteAuthUseCase(
+        kite_auth_provider = kite_auth_provider,
+        token_repo = bigquery_token_repo
+    )
+    login_url = kite_auth_service.get_login_url()
     return login_url
+
+
+def fetch_and_store_token(request_token):
+    global kc_client, bigquery_client
+    kite_auth_provider = KiteAuthProvider(
+        kite_client = kc_client 
+    )
+    bigquery_token_repo = BigQueryTokenRepository(
+        bigquery_client= bigquery_client
+    )
+    kite_auth_service = KiteAuthUseCase(
+        kite_auth_provider = kite_auth_provider,
+        token_repo = bigquery_token_repo
+    )
+
+    kite_auth_service.fetch_and_save_access_token(request_token)
+
+
