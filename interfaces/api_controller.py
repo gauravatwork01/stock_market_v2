@@ -48,6 +48,37 @@ def app_authentication_required(f):
     return wrapper
 
 
+def kite_authentication_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        global kc_client, bigquery_client
+        kite_auth_provider = KiteAuthProvider(
+            kite_client = kc_client 
+        )
+        bigquery_token_repo = BigQueryTokenRepository(
+            bigquery_client= bigquery_client
+        )
+        kite_auth_service = KiteAuthUseCase(
+            kite_auth_provider = kite_auth_provider,
+            token_repo = bigquery_token_repo
+        )
+        is_app_authenticated, token = kite_auth_service.is_app_authenticated()
+
+        if is_app_authenticated is False:
+            return redirect("/auth/login")
+        else:
+            kite_auth_provider = KiteAuthProvider(
+                kite_client= kc_client
+            )
+            kite_auth_provider.attach_access_token(
+                access_token = token.access_token
+            )
+            
+        return f(*args, **kwargs)
+
+    return wrapper
+
+
 def get_holdings():
     global bigquery_client
     bq_holdings_repo = BigQueryHoldingsRepository(
@@ -98,3 +129,18 @@ def fetch_and_store_token(request_token):
     kite_auth_service.fetch_and_save_access_token(request_token)
 
 
+
+from contexts.instrument.application.services.instrument_service import InstrumentService
+from contexts.instrument.infrastructure.providers.kite_instrument_provider import KiteInstrumentProvider
+from contexts.instrument.infrastructure.providers.finedge_instrument_provider import FinEdgeInstrumentProvider
+
+def get_instruments():
+
+
+    kite_instrument_provider = KiteInstrumentProvider(
+        kite_client= kc_client
+    )
+    finedge_instrument_provider = FinEdgeInstrumentProvider(
+        finedge_client= 
+    )
+    pass 

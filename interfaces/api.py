@@ -44,3 +44,9 @@ def holdings():
     return render_template("portfolio.html", holdings = holdings)
 
 
+
+@api_bp.route("/instrument")
+@api_controller.kite_authentication_required
+def instrument():    
+    instruments = api_controller.get_instruments()
+    return render_template("portfolio.html", holdings = holdings)

@@ -9,3 +9,4 @@ class Instrument(BaseModel):
     sector: Optional[str] = None
 
     
+
