@@ -140,7 +140,7 @@ def get_instruments():
     kite_instrument_provider = KiteInstrumentProvider(
         kite_client= kc_client
     )
-    finedge_instrument_provider = FinEdgeInstrumentProvider(
-        finedge_client= 
-    )
+    # finedge_instrument_provider = FinEdgeInstrumentProvider(
+    #     finedge_client= 
+    # )
     pass 
