@@ -4,7 +4,7 @@ from typing import List
 
 # from domain.holding import Holding
 # from domain.repositories.holding_repository import HoldingRepository
-from infrastructure.repositories.bigquery_holdings_repository import BigQueryHoldingsRepository
+from shared.infrastructure.repositories.bigquery_holdings_repository import BigQueryHoldingsRepository
 # from domains.holdings.models import Holding
 from contexts.holdings.models import Holding
 from infrastructure.providers.kite_connect.kite_holdings_provider import KiteHoldingsProvider
