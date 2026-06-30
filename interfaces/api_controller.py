@@ -1,16 +1,18 @@
-from application.use_cases.get_holdings_use_case import GetHoldingsUseCase
-from infrastructure.repositories.bigquery_holdings_repository import BigQueryHoldingsRepository
-from domains.holdings.models import Holding
-from infrastructure.providers.kite_connect.kite_holdings_provider import KiteHoldingsProvider
+
+from contexts.holdings.application.use_cases.get_holdings_use_case import GetHoldingsUseCase
+from contexts.holdings.infrastructure.repositories.bigquery_holdings_repository import BigQueryHoldingsRepository
+from contexts.holdings.models import Holding
+from contexts.holdings.infrastructure.providers.kite_holdings_provider import KiteHoldingsProvider
 # from infrastructure.providers.kite_connect.kite_login_provider import KiteLoginProvider
-from application.use_cases.kite_auth_use_case import KiteAuthUseCase
-from infrastructure.providers.kite_connect.kite_auth_provider import KiteAuthProvider
+from contexts.broker_auth.application.use_cases.kite_auth_use_case import KiteAuthUseCase
+
+from contexts.broker_auth.infrastructure.providers.kite_auth_provider import KiteAuthProvider
 from google.cloud import bigquery
 from functools import wraps
 from kiteconnect import KiteConnect
 from utilities import utilities
 from flask import Blueprint, redirect, request, render_template 
-from infrastructure.repositories.bigquery_token_repository import BigQueryTokenRepository
+from contexts.broker_auth.infrastructure.repositories.bigquery_token_repository import BigQueryTokenRepository
 
 bigquery_client = bigquery.Client()
 API_KEY = "qjj8i06fi5r3s8ru"

@@ -1,5 +1,6 @@
-# from domains.portfolio.models import  Holding
-from domains.holdings.models import Holding
+
+
+from contexts.holdings.models import Holding
 
 
 class KiteHoldingsProvider:

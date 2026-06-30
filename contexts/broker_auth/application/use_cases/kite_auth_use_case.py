@@ -1,7 +1,10 @@
 from utilities import utilities
-from infrastructure.providers.kite_connect.kite_auth_provider import KiteAuthProvider
-from infrastructure.repositories.bigquery_token_repository import BigQueryTokenRepository
-from domains.broker_auth.models import Token
+
+from contexts.broker_auth.infrastructure.providers.kite_auth_provider import KiteAuthProvider
+
+from contexts.broker_auth.infrastructure.repositories.bigquery_token_repository import BigQueryTokenRepository
+# from domains.broker_auth.models import Token
+from contexts.broker_auth.models import Token
 from datetime import date, datetime, timezone, timedelta
 
 class TokenPolicy:

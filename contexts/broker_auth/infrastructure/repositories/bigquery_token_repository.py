@@ -2,9 +2,10 @@
 from datetime import date, timedelta
 from utilities import utilities
 # from domains.vendor_auth.models import Token
-from domains.broker_auth.models import Token
+# from domains.broker_auth.models import Token
+from contexts.broker_auth.models import Token
 
-from infrastructure.api_clients.big_query_client import bigquery,\
+from shared.infrastructure.api_clients.big_query_client import bigquery,\
 get_bigquery_client, get_tokens_table_path
 
 
