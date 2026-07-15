@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from contexts.instrument.domain.entities.instrument import Instrument
+from contexts.instrument.models import Instrument
 
 
 class InstrumentDataProvider(ABC):

@@ -1,6 +1,6 @@
 
 # from domains.instruments.models import Instrument
-from contexts.instrument.domain.entities.instrument import Instrument
+from contexts.instrument.models import Instrument
 from contexts.instrument.domain.providers.instrument_data_provider import InstrumentDataProvider
 
 class KiteInstrumentProvider(InstrumentDataProvider):
