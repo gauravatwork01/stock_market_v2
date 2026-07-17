@@ -1,11 +1,12 @@
 
 from datetime import date, timedelta
+from google.cloud import bigquery
 from utilities import utilities
 # from domains.vendor_auth.models import Token
 # from domains.broker_auth.models import Token
 from contexts.broker_auth.models import Token
 
-from shared.infrastructure.gcp.bigquery_client import BigQueryClient
+from shared.infrastructure import BigQueryClient
 
 
 
@@ -13,6 +14,11 @@ from shared.infrastructure.gcp.bigquery_client import BigQueryClient
 class BigQueryTokenRepository:
 
     def __init__(self, bigquery_client: BigQueryClient) -> None:
+        if not isinstance(bigquery_client, BigQueryClient):
+            raise TypeError(
+                "bigquery_client must be a BigQueryClient instance, "
+                f"got {type(bigquery_client).__name__}"
+            )
         self.client = bigquery_client
         self.token_table_path = f"{bigquery_client.project}.datawarehouse.tokens"
 

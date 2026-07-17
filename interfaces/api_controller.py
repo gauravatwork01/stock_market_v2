@@ -13,21 +13,21 @@ from kiteconnect import KiteConnect
 from utilities import utilities
 from flask import Blueprint, redirect, request, render_template 
 from contexts.broker_auth.infrastructure.repositories.bigquery_token_repository import BigQueryTokenRepository
+from shared.infrastructure import BigQueryClient
+from shared.infrastructure import kc_api_client
+
 
 bigquery_client = bigquery.Client()
-API_KEY = "qjj8i06fi5r3s8ru"
-kc_client = KiteConnect(api_key=API_KEY)
 API_SECRET = "hxqjy14n6rvk6vkqcllefhlabkbv13yx"
 
 def app_authentication_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        global kc_client, bigquery_client
         kite_auth_provider = KiteAuthProvider(
-            kite_client = kc_client 
+            kite_client = kc_api_client() 
         )
         bigquery_token_repo = BigQueryTokenRepository(
-            bigquery_client= bigquery_client
+            bigquery_client= BigQueryClient()
         )
         kite_auth_service = KiteAuthUseCase(
             kite_auth_provider = kite_auth_provider,
@@ -39,7 +39,7 @@ def app_authentication_required(f):
             return redirect("/auth/login")
         else:
             kite_auth_provider = KiteAuthProvider(
-                kite_client= kc_client
+                kite_client= kc_api_client()
             )
             kite_auth_provider.attach_access_token(
                 access_token = token.access_token
@@ -53,12 +53,12 @@ def app_authentication_required(f):
 def kite_authentication_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        global kc_client, bigquery_client
+        
         kite_auth_provider = KiteAuthProvider(
-            kite_client = kc_client 
+            kite_client = kc_api_client() 
         )
         bigquery_token_repo = BigQueryTokenRepository(
-            bigquery_client= bigquery_client
+            bigquery_client= BigQueryClient()
         )
         kite_auth_service = KiteAuthUseCase(
             kite_auth_provider = kite_auth_provider,
@@ -70,7 +70,7 @@ def kite_authentication_required(f):
             return redirect("/auth/login")
         else:
             kite_auth_provider = KiteAuthProvider(
-                kite_client= kc_client
+                kite_client= kc_api_client()
             )
             kite_auth_provider.attach_access_token(
                 access_token = token.access_token
@@ -82,12 +82,11 @@ def kite_authentication_required(f):
 
 
 def get_holdings():
-    global bigquery_client
     bq_holdings_repo = BigQueryHoldingsRepository(
-        bigquery_client = bigquery_client
+        bigquery_client = BigQueryClient()
     )
     kite_holdings_provider = KiteHoldingsProvider(
-        kite_client = kc_client
+        kite_client = kc_api_client()
     )
     holdings = GetHoldingsUseCase(
         holdings_repo = bq_holdings_repo,
@@ -100,12 +99,11 @@ def get_holdings():
 
 
 def get_kite_login_url():
-    global kc_client, bigquery_client
     kite_auth_provider = KiteAuthProvider(
-        kite_client = kc_client 
+        kite_client = kc_api_client() 
     )
     bigquery_token_repo = BigQueryTokenRepository(
-        bigquery_client= bigquery_client
+        bigquery_client= BigQueryClient()
     )
     kite_auth_service = KiteAuthUseCase(
         kite_auth_provider = kite_auth_provider,
@@ -116,12 +114,11 @@ def get_kite_login_url():
 
 
 def fetch_and_store_token(request_token):
-    global kc_client, bigquery_client
     kite_auth_provider = KiteAuthProvider(
-        kite_client = kc_client 
+        kite_client = kc_api_client() 
     )
     bigquery_token_repo = BigQueryTokenRepository(
-        bigquery_client= bigquery_client
+        bigquery_client= BigQueryClient()
     )
     kite_auth_service = KiteAuthUseCase(
         kite_auth_provider = kite_auth_provider,
@@ -140,7 +137,7 @@ def get_instruments():
 
 
     kite_instrument_provider = KiteInstrumentProvider(
-        kite_client= kc_client
+        kite_client= kc_api_client()
     )
     # finedge_instrument_provider = FinEdgeInstrumentProvider(
     #     finedge_client= 

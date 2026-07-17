@@ -9,10 +9,17 @@ logger = logging.getLogger(__name__)
 class BigQueryClient:
     """Wrapper for Google Cloud BigQuery operations."""
 
-    def __init__(self, project_id: Optional[str] = None):
-        self.client = bigquery.Client(project=project_id)
+    def __init__(self):
+        self.client = bigquery.Client()
         self.project_id = self.client.project
 
+    @property
+    def project(self) -> str:
+        return self.client.project 
+
+    # @location.setter
+    # def location(self, value: str) -> None:
+    #     self.client.location = value
 
     def build_query_parameters(self, query_params):
         query_parameters = []

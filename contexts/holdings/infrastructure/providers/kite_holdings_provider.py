@@ -1,10 +1,12 @@
 
 
 from contexts.holdings.models import Holding
-
+from shared.infrastructure import kc_api_client
 
 class KiteHoldingsProvider:
-    def __init__(self, kite_client):
+    def __init__(self, kite_client: kc_api_client):
+        if not isinstance(kite_client, kc_api_client):
+            raise ValueError("invalid datatype for kite_client")
         self.kite_client = kite_client
 
     def get_all_holdings(self) -> Holding:

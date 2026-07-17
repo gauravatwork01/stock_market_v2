@@ -7,6 +7,12 @@ from google.cloud import bigquery
 from interfaces.api import api_bp
 from interfaces.analysis_controller import analysis_bp
 
+from contexts.broker_auth.api 
+
+
+
+
+
 app = Flask(__name__)
 
 app.register_blueprint(api_bp)

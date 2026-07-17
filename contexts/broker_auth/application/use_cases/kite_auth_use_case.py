@@ -37,10 +37,8 @@ class KiteAuthUseCase:
         return login_url 
 
     def fetch_and_save_access_token(self, request_token):
-        API_SECRET = "hxqjy14n6rvk6vkqcllefhlabkbv13yx"
         access_token = self.kite_auth_provider.fetch_access_token(
-            request_token = request_token,
-            API_SECRET = API_SECRET
+            request_token = request_token
         )
         ist_dt = utilities.get_ist_now_datetime()
         applicable_ist_token_expiry = TokenPolicy.get_applicable_token_expiry(
