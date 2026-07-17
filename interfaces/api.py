@@ -37,11 +37,6 @@ def portfolio():
 
 
 
-@api_bp.route("/holdings")
-@api_controller.app_authentication_required
-def holdings():    
-    holdings = api_controller.get_holdings()
-    return render_template("portfolio.html", holdings = holdings)
 
 
 
