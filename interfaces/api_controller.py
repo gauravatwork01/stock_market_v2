@@ -98,19 +98,7 @@ def get_holdings():
 
 
 
-def get_kite_login_url():
-    kite_auth_provider = KiteAuthProvider(
-        kite_client = kc_api_client() 
-    )
-    bigquery_token_repo = BigQueryTokenRepository(
-        bigquery_client= BigQueryClient()
-    )
-    kite_auth_service = KiteAuthUseCase(
-        kite_auth_provider = kite_auth_provider,
-        token_repo = bigquery_token_repo
-    )
-    login_url = kite_auth_service.get_login_url()
-    return login_url
+
 
 
 def fetch_and_store_token(request_token):

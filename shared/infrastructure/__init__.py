@@ -10,10 +10,13 @@ __all__ = ["BigQueryClient", "kc_api_client"]
 
 
 
-
+kc_client = None 
 
 def get_kc_api_client():
-    kc_client = kc_api_client()
-    pass 
+    global kc_client
+    if kc_client is None:
+        kc_client = kc_api_client()
+    return kc_client
+    
 
 

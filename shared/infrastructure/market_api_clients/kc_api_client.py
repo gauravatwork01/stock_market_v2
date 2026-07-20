@@ -30,11 +30,11 @@ class kc_api_client(I_MarketApiClient):
 
     def generate_session(self, request_token):
         API_SECRET = "hxqjy14n6rvk6vkqcllefhlabkbv13yx"
-        self.kc_client.generate_session(self, request_token, api_secret=API_SECRET)
-
+        session_dets = self.kc_client.generate_session(request_token, api_secret=API_SECRET)
+        return session_dets
 
     def login_url(self):
-        self.kc_client.login_url()
+        return self.kc_client.login_url()
 
 
     def set_access_token(self,access_token):

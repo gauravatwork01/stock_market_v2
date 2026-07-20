@@ -3,7 +3,7 @@ from interfaces import api_controller
 
 analysis_bp = Blueprint("analysis", __name__, url_prefix="/analysis")
 
-@analysis_bp.route("/")
+@analysis_bp.route("/", endpoint="home")
 def home_page():
 
     

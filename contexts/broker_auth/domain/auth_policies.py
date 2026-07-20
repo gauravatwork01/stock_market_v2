@@ -1,6 +1,6 @@
 
 from contexts.broker_auth.infrastructure.providers.kite_auth_provider import KiteAuthProvider
-from shared.infrastructure import kc_api_client
+from shared.infrastructure import get_kc_api_client
 from contexts.broker_auth.infrastructure.repositories.bigquery_token_repository import BigQueryTokenRepository
 from shared.infrastructure import BigQueryClient
 from contexts.broker_auth.application.use_cases.kite_auth_use_case import KiteAuthUseCase
@@ -14,6 +14,8 @@ def kite_authentication_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         
+        kc_api_client = get_kc_api_client()
+
         kite_auth_provider = KiteAuthProvider(
             kite_client = kc_api_client() 
         )
