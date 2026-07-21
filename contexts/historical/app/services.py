@@ -10,7 +10,7 @@ class HistoricalAppService:
     def get_historicals(self):
         kc_api_client = get_kc_api_client()
         access_token = get_access_token()
-        kc_api_client.set_access_token()
+        kc_api_client.set_access_token(access_token)
 
         st_dt = datetime(2026, 7, 1, 9, 15, 0, tzinfo=ZoneInfo("Asia/Kolkata"))
         end_dt = datetime(2026, 7, 1, 15, 15, 0, tzinfo=ZoneInfo("Asia/Kolkata"))

@@ -19,7 +19,7 @@ class InstrumentRepository:
         instrument_models = []
         for each_res in results:
             instr = Instrument(
-                instr_token = each_res["instrument_token"],
+                instr_token = each_res["instr_token"],
                 symbol = each_res["symbol"],
                 name = each_res["name"],
                 exchange = each_res["exchange"],

@@ -68,17 +68,18 @@ class KiteAuthUseCase:
 
     def is_app_authenticated(self):
 
-        ist_dt = utilities.get_ist_now_datetime()
+        curr_ist_dt = utilities.get_ist_now_datetime()
         applicable_ist_token_expiry = TokenPolicy.get_applicable_token_expiry(
-            ist_dt= ist_dt
+            ist_dt= curr_ist_dt
         )
         token = self.token_repo.get_token_by_expiry_datetime(
             ist_datetime = applicable_ist_token_expiry
         )
-
+        
         is_app_authenticated = False 
-        if ist_dt < applicable_ist_token_expiry:
-            is_app_authenticated = True 
+        if token:
+            if curr_ist_dt < token.ist_expiry_dt:
+                is_app_authenticated = True 
 
         return is_app_authenticated, token 
 

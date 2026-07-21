@@ -1,6 +1,7 @@
 
 from .app.services import HistoricalAppService
 from flask import Blueprint, redirect, request, render_template 
+from contexts.broker_auth.application.services import kite_authentication_required
 
 
 historical_bp = Blueprint("historical", __name__, url_prefix="/historical")

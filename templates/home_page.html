@@ -25,10 +25,10 @@
             <a class="nav-link {{ 'active' if request.endpoint == 'analysis' else '' }}" href="{{ url_for('analysis.home') }}">Analysis</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {{ 'active' if request.endpoint == 'auth' else '' }}" href="{{ url_for('holdings.home') }}">Auth</a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'auth' else '' }}" href="{{ url_for('broker_auth.login') }}">Auth</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {{ 'active' if request.endpoint == 'instrument' else '' }}" href="{{ url_for('instrument.home') }}">Instrument</a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'instrument' else '' }}" href="{{ url_for('instrument.get') }}">Instrument</a>
           </li>
         </ul>
       </div>

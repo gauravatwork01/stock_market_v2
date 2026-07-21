@@ -19,6 +19,10 @@ class kc_api_client(I_MarketApiClient):
     def access_token(self):
         return self.kc_client.access_token
 
+    @property
+    def api_key(self):
+        return API_KEY
+
 
     def holdings(self):
         return self.kc_client.holdings()
@@ -36,9 +40,6 @@ class kc_api_client(I_MarketApiClient):
     def login_url(self):
         return self.kc_client.login_url()
 
-
-    def set_access_token(self,access_token):
-        self.kc_client.set_access_token(access_token)
 
 
     def get_instruments_by_exchange(self, exchange = "all"):

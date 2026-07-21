@@ -10,6 +10,7 @@ from interfaces.analysis_controller import analysis_bp
 from contexts.broker_auth.api_bp import broker_auth_bp
 from contexts.holdings.api_bp import holdings_bp
 from contexts.instrument.api_bp import instrument_bp
+from contexts.historical.api_bp import historical_bp
 
 
 app = Flask(__name__)
@@ -25,6 +26,7 @@ app.register_blueprint(broker_auth_bp)
 app.register_blueprint(analysis_bp)
 app.register_blueprint(holdings_bp)
 app.register_blueprint(instrument_bp)
+app.register_blueprint(historical_bp)
 
 
 if __name__ == "__main__":
