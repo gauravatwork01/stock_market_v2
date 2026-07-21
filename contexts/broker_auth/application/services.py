@@ -16,7 +16,7 @@ def get_access_token():
     kc_api_client = get_kc_api_client()
 
     kite_auth_provider = KiteAuthProvider(
-        kite_client = kc_api_client() 
+        kite_client = kc_api_client
     )
     bigquery_token_repo = BigQueryTokenRepository(
         bigquery_client= BigQueryClient()
@@ -31,7 +31,7 @@ def get_access_token():
         return redirect("/auth/login")
     else:
         kite_auth_provider = KiteAuthProvider(
-            kite_client= kc_api_client()
+            kite_client= kc_api_client
         )
         kite_auth_provider.attach_access_token(
             access_token = token.access_token

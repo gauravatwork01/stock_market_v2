@@ -17,6 +17,14 @@ def get_kc_api_client():
     if kc_client is None:
         kc_client = kc_api_client()
     return kc_client
+
+
+bq_client = None 
+def get_big_query_client():
+    global bq_client
+    if bq_client is None:
+        bq_client = BigQueryClient()
+    return bq_client
     
 
 

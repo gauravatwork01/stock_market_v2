@@ -41,6 +41,43 @@ class kc_api_client(I_MarketApiClient):
         self.kc_client.set_access_token(access_token)
 
 
+    def get_instruments_by_exchange(self, exchange = "all"):
+        if exchange == "all":
+            exch_val = None 
+        else:
+            exch_val = exchange 
+        instruments = self.kc_client.instruments(exchange = exch_val)
+
+        formatted_instrs = []
+        for each_instr in instruments:
+            if each_instr["segment"] == "INDICES":
+                continue
+            else:
+                f_instr = {}
+                f_instr["instr_token"] = each_instr["instrument_token"]
+                f_instr["exchange"] = each_instr["exchange"]
+                f_instr["symbol"] = each_instr["tradingsymbol"]
+                f_instr["name"] = each_instr["name"]
+                formatted_instrs.append(f_instr)
+
+        return formatted_instrs
+
+
+
+    def get_historicals(self,instr_token,st_dt, end_dt, interval):
+        allowed_intervals = ["minute", "day", "3minute", "5minute", "10minute"]
+        if interval not in allowed_intervals:
+            raise ValueError(f"invalid interval provided : {interval}")
+        
+        historicals = self.kc_client.historical_data(
+            instr_token,
+            st_dt,
+            end_dt,
+            interval
+        )
+
+        pass 
+
 
 
 

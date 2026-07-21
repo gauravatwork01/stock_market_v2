@@ -11,15 +11,15 @@ class BigQueryClient:
 
     def __init__(self):
         self.client = bigquery.Client()
-        self.project_id = self.client.project
+        # self.project_id = self.client.project
 
     @property
     def project(self) -> str:
         return self.client.project 
 
-    # @location.setter
-    # def location(self, value: str) -> None:
-    #     self.client.location = value
+    @property
+    def project_id(self) -> str:
+        return self.client.project 
 
     def build_query_parameters(self, query_params):
         query_parameters = []
@@ -39,10 +39,92 @@ class BigQueryClient:
         return job_config
 
 
-    def execute_query(self, query, query_params):
-        job_config = self.get_job_config(query_params)
-        query_res = self.client.query(query, job_config=job_config).result()
+    def execute_query(self, query, query_params=None):
+        if query_params is None:
+            query_res = self.client.query(query).result()
+        else:
+            job_config = self.get_job_config(query_params)
+            query_res = self.client.query(query, job_config=job_config).result()
+
         return query_res
+
+
+    def insert_data_using_load_strategy(self, schema, rows:list[dict], table_name):
+
+        job_config = bigquery.LoadJobConfig(
+            schema = schema,
+            write_disposition = bigquery.WriteDisposition.WRITE_APPEND,
+            create_disposition = bigquery.CreateDisposition.CREATE_IF_NEEDED,  # default
+        )
+
+        table_id = f"{self.project_id}.datawarehouse.{table_name}"
+        insert_job = self.client.load_table_from_json(
+            rows,
+            table_id,
+            job_config=job_config
+        ) 
+        res = insert_job.result()
+        print("Rows inserted successfully.")
+
+
+    def upsert_data_using_merge(self, schema, rows: list[dict], table_name: str):
+        dataset = "datawarehouse"
+        target_table = f"{self.project_id}.{dataset}.{table_name}"
+        staging_table = f"{self.project_id}.{dataset}.{table_name}_staging"
+
+        load_job_config = bigquery.LoadJobConfig(
+            schema=schema,
+            write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
+            create_disposition=bigquery.CreateDisposition.CREATE_IF_NEEDED,
+        )
+        load_job = self.client.load_table_from_json(
+            rows,
+            staging_table,
+            job_config=load_job_config,
+        )
+        load_job.result()
+
+        try:
+            table = self.client.get_table(target_table)
+            self._ensure_schema_columns(table, schema)
+        except NotFound:
+            table = bigquery.Table(target_table, schema=schema)
+            self.client.create_table(table)
+
+        merge_query = f"""
+            MERGE `{target_table}` T
+            USING `{staging_table}` S
+            ON T.instr_token = S.instr_token
+            WHEN MATCHED THEN UPDATE SET
+                symbol = S.symbol,
+                name = S.name,
+                exchange = S.exchange,
+                updated_at = S.updated_at
+            WHEN NOT MATCHED THEN INSERT
+                (instr_token, symbol, name, exchange, created_at, updated_at)
+                VALUES
+                (S.instr_token, S.symbol, S.name, S.exchange, S.created_at, S.updated_at)
+        """
+        self.client.query(merge_query).result()
+        print("Rows upserted successfully.")
+
+
+    def _ensure_schema_columns(self, table: bigquery.Table, schema: list):
+        """Add any columns present in schema but missing from the live BQ table."""
+        existing = {field.name for field in table.schema}
+        missing = [field for field in schema if field.name not in existing]
+        if not missing:
+            return
+
+        table.schema = list(table.schema) + missing
+        self.client.update_table(table, ["schema"])
+        logger.info(
+            "Added columns to %s.%s.%s: %s",
+            table.project,
+            table.dataset_id,
+            table.table_id,
+            [f.name for f in missing],
+        )
 
 
 """

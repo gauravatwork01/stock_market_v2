@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import List
 
 
-class Stock(BaseModel):
+class Historical(BaseModel):
 
     symbol: str 
     open: float
