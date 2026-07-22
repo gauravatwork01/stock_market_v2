@@ -1,7 +1,7 @@
 
 from .I_market_api_client import I_MarketApiClient
 from kiteconnect import KiteConnect
-
+from datetime import datetime
 
 API_KEY = "qjj8i06fi5r3s8ru"
 
@@ -65,7 +65,7 @@ class kc_api_client(I_MarketApiClient):
 
 
 
-    def get_historicals(self,instr_token,st_dt, end_dt, interval):
+    def get_historicals(self,instr_token, st_dt:datetime, end_dt: datetime, interval):
         allowed_intervals = ["minute", "day", "3minute", "5minute", "10minute"]
         if interval not in allowed_intervals:
             raise ValueError(f"invalid interval provided : {interval}")
@@ -77,7 +77,18 @@ class kc_api_client(I_MarketApiClient):
             interval
         )
 
-        pass 
+        f_instruments = []
+        for each_hist in historicals:
+            data = {
+                "open": each_hist["open"],
+                "high": each_hist["high"],
+                "low": each_hist["low"],
+                "close": each_hist["close"],
+                "date_time": each_hist["date"]
+            }
+            f_instruments.append(data)
+
+        return f_instruments
 
 
 

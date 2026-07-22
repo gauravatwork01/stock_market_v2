@@ -11,22 +11,21 @@ from contexts.broker_auth.api_bp import broker_auth_bp
 from contexts.holdings.api_bp import holdings_bp
 from contexts.instrument.api_bp import instrument_bp
 from contexts.historical.api_bp import historical_bp
+from app.api_bp import app_bp
 
 
 app = Flask(__name__)
 
 @app.route("/")
 def index():
-
     return render_template("home_page.html")
-    # return redirect("/broker_auth/vendor_login")
 
 app.register_blueprint(broker_auth_bp)
-# app.register_blueprint(api_bp)
 app.register_blueprint(analysis_bp)
 app.register_blueprint(holdings_bp)
 app.register_blueprint(instrument_bp)
 app.register_blueprint(historical_bp)
+app.register_blueprint(app_bp)
 
 
 if __name__ == "__main__":

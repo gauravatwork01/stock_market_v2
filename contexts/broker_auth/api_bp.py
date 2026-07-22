@@ -17,7 +17,6 @@ broker_auth_bp = Blueprint("broker_auth", __name__, url_prefix="/broker_auth")
 
 @broker_auth_bp.route("/vendor_login", endpoint="login")
 def vendor_login():
-    # login_url = api_controller.get_kite_login_url()
     login_url = get_kite_login_url()
     return redirect(login_url)
 

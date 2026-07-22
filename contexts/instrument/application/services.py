@@ -6,7 +6,7 @@ from ..infrastructure.instrument_repo import InstrumentRepository
 from ..models import Instrument
 
 
-class InstrumentService:
+class InstrumentAppService:
 
 
 
@@ -34,5 +34,14 @@ class InstrumentService:
 
     def get_instruments(self):
         instr_repo = InstrumentRepository()
-        instruments: list[Instrument] = instr_repo.get_instruments()
-        return instruments 
+        instruments_by_id: dict[str,Instrument] = instr_repo.get_instruments()
+        return instruments_by_id 
+
+
+    def get_instruments_by_id(self, instr_ids:list):
+        instr_repo = InstrumentRepository()
+        instruments_by_id: dict[str,Instrument] = instr_repo.get_instruments_by_id(instr_ids = instr_ids)
+        for instr_id, instr_model in instruments_by_id.items():
+            instruments_by_id[instr_id] = instr_model.model_dump()
+        return instruments_by_id
+

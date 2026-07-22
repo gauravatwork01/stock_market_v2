@@ -2,60 +2,216 @@ from typing import Any, Dict, List, Optional
 from google.cloud import bigquery
 from google.cloud.exceptions import NotFound, BadRequest
 import logging
-
+import copy
+import uuid
 logger = logging.getLogger(__name__)
 
 
-class BigQueryClient:
-    """Wrapper for Google Cloud BigQuery operations."""
+SCHEMA = {
+    "composite_columns" : ["instr_token", "interval", "date_time"],
+    "columns" : {
+        "instr_token" : "INTEGER",
+        "symbol" : "STRING",
+        "name" : "STRING",
+        "exchange" : "STRING",
+        "created_at" : "DATETIME",
+        "updated_at" : "DATETIME"
+    },
+    ""
+}
 
-    def __init__(self):
-        self.client = bigquery.Client()
-        # self.project_id = self.client.project
+def construct_merge_query_using_schema(schema, main_tbl, staging_tbl):
+    comp_cols = schema["composite_columns"]
+    joins_on_str = " AND ".join(f'M.{c} = S.{c}' for c in comp_cols)
+    
+    all_create_cols = list(schema["columns"].keys())
+    create_cols_str = ",".join(all_create_cols)
+    create_vals_str = ",".join(f"S.{col_name}" for col_name in all_create_cols)
+     
+    all_update_cols = copy.deepcopy(all_create_cols)
+    all_update_cols.remove("created_at")
+    update_str = ",".join(f"{col_name} = S.{col_name}" for col_name in all_update_cols)
 
-    @property
-    def project(self) -> str:
-        return self.client.project 
+    
+    merge_query = f"""
+        MERGE `{main_tbl}` M
+        USING `{staging_tbl}` S
+        ON {joins_on_str}
+        WHEN MATCHED THEN UPDATE SET
+            {update_str}
+        WHEN NOT MATCHED THEN INSERT
+            ({create_cols_str})
+            VALUES
+            ({create_vals_str})
+    """
+    return merge_query
 
-    @property
-    def project_id(self) -> str:
-        return self.client.project 
 
-    def build_query_parameters(self, query_params):
-        query_parameters = []
-        for each_param in query_params:
-            each_query_param = bigquery.ScalarQueryParameter(each_param[0], each_param[1], each_param[2])
-            query_parameters.append(each_query_param)
+
+class Schema:
+
+    def __init__(self,schema) -> None:
+        self.schema = schema 
+
+    
+    def parse_bq_schema(self):
+        SCHEMA = []
+        for col_name, data_type in self.schema["columns"].items():
+            schema_field = bigquery.SchemaField(col_name, data_type)
+            SCHEMA.append(schema_field)
+
+
+
+class BigQueryTableClient:
+
+    def __init__(self, bq_client: bigquery.Client) -> None:
+        self.client = bq_client
+
+
+    def create_new_table_from_json(self, load_job_config, table_id, rows):
         
-        return query_parameters
+        load_job = self.client.load_table_from_json(
+            rows,
+            table_id,
+            job_config=load_job_config,
+        )
+        load_job.result()
 
 
-    def get_job_config(self, query_params):
-        query_parameters = self.build_query_parameters(query_params)
+    def create_table_from_schema(self,table_id, schema):
+        table = bigquery.Table(table_id, schema=schema)
+        self.client.create_table(table)
 
+
+    def table_exists(self, tbl_id:str):
+        try:
+            table = self.client.get_table(tbl_id)
+            return table
+        except NotFound:
+            return False
+
+
+class BigQuerySchemaTranslator:
+    """Translates your internal schema dict format into bigquery.SchemaField objects."""
+
+    def __init__(self, schema_dict: dict):
+        self.schema_dict = schema_dict
+
+    def to_bq_schema(self) -> list[bigquery.SchemaField]:
+        return [
+            bigquery.SchemaField(col_name, data_type)
+            for col_name, data_type in self.schema_dict["columns"].items()
+        ]
+
+    @property
+    def composite_columns(self) -> list[str]:
+        return self.schema_dict["composite_columns"]
+
+    @property
+    def column_names(self) -> list[str]:
+        return list(self.schema_dict["columns"].keys())
+
+
+
+class BigQueryConfig:
+
+    def get_job_config_using_params(self, query_parameters):
         job_config = bigquery.QueryJobConfig(
             query_parameters = query_parameters
         )
         return job_config
 
 
+    def get_job_config_using_schema(self, schema):
+        job_config = bigquery.LoadJobConfig(
+            schema = schema,
+            # write_disposition = bigquery.WriteDisposition.WRITE_APPEND,
+            write_disposition = bigquery.WriteDisposition.WRITE_TRUNCATE,
+            create_disposition = bigquery.CreateDisposition.CREATE_IF_NEEDED,  # default
+        )
+        return job_config
+
+
+class BigQueryConnection:
+
+    def __init__(self) -> None:
+        # self.client = bigquery.Client()
+        self.bq_config = BigQueryConfig()
+
+    @property
+    def project(self) -> str:
+        return self.client.project 
+
+    def _build_query_parameters(self, query_params):
+        query_parameters = []
+
+        for each_param in query_params:
+            each_query_param = bigquery.ScalarQueryParameter(each_param[0], each_param[1], each_param[2])
+            query_parameters.append(each_query_param)
+        return query_parameters
+
+
+    def _get_job_config(self, query_params):
+        query_parameters = self._build_query_parameters(query_params)
+
+        job_config = self.bq_config.get_job_config_using_params(query_parameters)
+        return job_config
+
     def execute_query(self, query, query_params=None):
         if query_params is None:
             query_res = self.client.query(query).result()
         else:
-            job_config = self.get_job_config(query_params)
+            job_config = self._get_job_config(query_params)
             query_res = self.client.query(query, job_config=job_config).result()
+
+        return query_res
+
+    
+    def get_table_id(self, table_name):
+        dataset = "datawarehouse"
+        tbl_id = f"{self.project}.{dataset}.{table_name}"
+        return tbl_id
+
+
+
+
+class BigQueryClient:
+    """Wrapper for Google Cloud BigQuery operations."""
+
+    def __init__(self):
+        bq_client = bigquery.Client()
+        self.bq_connection = BigQueryConnection(bq_client)
+        self.bq_table_client = BigQueryTableClient(bq_client)
+        self.bq_config = BigQueryConfig()
+
+
+        self.client = bq_client
+
+        self.bq_tbl_mgr = BigQueryTableClient(bq_client)
+
+
+    @property
+    def project(self) -> str:
+        return self.bq_connection.project
+
+
+    @property
+    def project_id(self) -> str:
+        return self.bq_connection.project
+
+
+    def execute_query(self, query, query_params=None):
+        query_res = self.bq_connection.execute_query(
+            query = query,
+            query_params = query_params
+        )
 
         return query_res
 
 
     def insert_data_using_load_strategy(self, schema, rows:list[dict], table_name):
 
-        job_config = bigquery.LoadJobConfig(
-            schema = schema,
-            write_disposition = bigquery.WriteDisposition.WRITE_APPEND,
-            create_disposition = bigquery.CreateDisposition.CREATE_IF_NEEDED,  # default
-        )
+        job_config = self.bq_config.get_job_config_using_schema(schema)
 
         table_id = f"{self.project_id}.datawarehouse.{table_name}"
         insert_job = self.client.load_table_from_json(
@@ -67,44 +223,43 @@ class BigQueryClient:
         print("Rows inserted successfully.")
 
 
-    def upsert_data_using_merge(self, schema, rows: list[dict], table_name: str):
-        dataset = "datawarehouse"
-        target_table = f"{self.project_id}.{dataset}.{table_name}"
-        staging_table = f"{self.project_id}.{dataset}.{table_name}_staging"
+    def get_or_create_table(self, table_id, schema):
+        table_exists = self.bq_table_client.table_exists(table_id)
+        if table_exists is False:
+            self.bq_table_client.create_table_from_schema(table_id, schema)
+        pass 
 
-        load_job_config = bigquery.LoadJobConfig(
-            schema=schema,
-            write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
-            create_disposition=bigquery.CreateDisposition.CREATE_IF_NEEDED,
+
+    def upsert_data_using_merge(self, schema, rows: list[dict], table_name: str):
+        
+        main_table_id = self.bq_connection.get_table_id(
+            table_name = table_name
         )
-        load_job = self.client.load_table_from_json(
-            rows,
-            staging_table,
-            job_config=load_job_config,
+        main_table = self.bq_table_client.table_exists(main_table_id)
+        if main_table is False:
+            self.bq_table_client.create_table_from_schema(main_table_id, schema)
+
+
+        staging_table_id = self.bq_connection.get_table_id(
+            table_name = f"{table_name}_staging_{uuid.uuid4().hex}"
         )
-        load_job.result()
+        job_config = self.bq_config.get_job_config_using_schema(schema)
+        self.bq_table_client.create_new_table_from_json(job_config, staging_table_id, rows)
 
         try:
-            table = self.client.get_table(target_table)
+            table = self.client.get_table(main_table_id)
             self._ensure_schema_columns(table, schema)
         except NotFound:
-            table = bigquery.Table(target_table, schema=schema)
-            self.client.create_table(table)
+            pass 
+            # table = bigquery.Table(main_table_id, schema=schema)
+            # self.client.create_table(table)
 
-        merge_query = f"""
-            MERGE `{target_table}` T
-            USING `{staging_table}` S
-            ON T.instr_token = S.instr_token
-            WHEN MATCHED THEN UPDATE SET
-                symbol = S.symbol,
-                name = S.name,
-                exchange = S.exchange,
-                updated_at = S.updated_at
-            WHEN NOT MATCHED THEN INSERT
-                (instr_token, symbol, name, exchange, created_at, updated_at)
-                VALUES
-                (S.instr_token, S.symbol, S.name, S.exchange, S.created_at, S.updated_at)
-        """
+
+        merge_query = construct_merge_query_using_schema(
+            schema = schema,
+            main_tbl = main_table_id,
+            staging_tbl = staging_table
+        )
         self.client.query(merge_query).result()
         print("Rows upserted successfully.")
 
@@ -125,171 +280,3 @@ class BigQueryClient:
             table.table_id,
             [f.name for f in missing],
         )
-
-
-"""
-    def query_to_dataframe(self, sql: str) -> Any:
-    
-        try:
-            query_job = self.query(sql)
-            df = query_job.to_dataframe()
-            logger.info(f"Query returned {len(df)} rows")
-            return df
-        except Exception as e:
-            logger.error(f"Failed to convert query results to DataFrame: {e}")
-            raise
-
-    def insert_rows(self, table_id: str, rows: List[Dict[str, Any]]) -> List[Dict]:
-        
-        try:
-            table = self.client.get_table(table_id)
-            errors = self.client.insert_rows_json(table, rows)
-            if errors:
-                logger.error(f"Insert errors: {errors}")
-            else:
-                logger.info(f"Successfully inserted {len(rows)} rows into {table_id}")
-            return errors
-        except NotFound:
-            logger.error(f"Table {table_id} not found")
-            raise
-        except Exception as e:
-            logger.error(f"Failed to insert rows: {e}")
-            raise
-
-    def load_from_gcs(
-        self,
-        source_uri: str,
-        table_id: str,
-        job_config: Optional[bigquery.LoadJobConfig] = None,
-    ) -> bigquery.LoadJob:
-        
-        try:
-            if job_config is None:
-                job_config = bigquery.LoadJobConfig()
-            
-            load_job = self.client.load_table_from_uri(source_uri, table_id, job_config=job_config)
-            load_job.result()
-            logger.info(f"Loaded {load_job.output_rows} rows from {source_uri} to {table_id}")
-            return load_job
-        except NotFound:
-            logger.error(f"Table {table_id} not found")
-            raise
-        except Exception as e:
-            logger.error(f"Failed to load data from GCS: {e}")
-            raise
-
-    def get_table(self, table_id: str) -> bigquery.Table:
-       
-        try:
-            table = self.client.get_table(table_id)
-            logger.info(f"Retrieved table {table_id}")
-            return table
-        except NotFound:
-            logger.error(f"Table {table_id} not found")
-            raise
-
-    def list_tables(self, dataset_id: str) -> List[bigquery.TableListItem]:
-       
-        try:
-            tables = self.client.list_tables(dataset_id)
-            table_list = list(tables)
-            logger.info(f"Found {len(table_list)} tables in {dataset_id}")
-            return table_list
-        except NotFound:
-            logger.error(f"Dataset {dataset_id} not found")
-            raise
-
-    def create_table(self, table_id: str, schema: List[bigquery.SchemaField]) -> bigquery.Table:
-     
-        try:
-            table = bigquery.Table(table_id, schema=schema)
-            table = self.client.create_table(table)
-            logger.info(f"Created table {table_id}")
-            return table
-        except Exception as e:
-            logger.error(f"Failed to create table: {e}")
-            raise
-
-    def delete_table(self, table_id: str) -> None:
-       
-        try:
-            self.client.delete_table(table_id)
-            logger.info(f"Deleted table {table_id}")
-        except NotFound:
-            logger.error(f"Table {table_id} not found")
-            raise
-
-    def update_table(self, table: bigquery.Table) -> bigquery.Table:
-      
-        try:
-            table = self.client.update_table(table, ["description", "labels"])
-            logger.info(f"Updated table {table.project}.{table.dataset_id}.{table.table_id}")
-            return table
-        except Exception as e:
-            logger.error(f"Failed to update table: {e}")
-            raise
-
-    def get_dataset(self, dataset_id: str) -> bigquery.Dataset:
-       
-        try:
-            dataset = self.client.get_dataset(dataset_id)
-            logger.info(f"Retrieved dataset {dataset_id}")
-            return dataset
-        except NotFound:
-            logger.error(f"Dataset {dataset_id} not found")
-            raise
-
-    def list_datasets(self) -> List[bigquery.DatasetListItem]:
-     
-        try:
-            datasets = self.client.list_datasets()
-            dataset_list = list(datasets)
-            logger.info(f"Found {len(dataset_list)} datasets in project {self.project_id}")
-            return dataset_list
-        except Exception as e:
-            logger.error(f"Failed to list datasets: {e}")
-            raise
-
-    def create_dataset(self, dataset_id: str, location: str = "US") -> bigquery.Dataset:
-    
-        try:
-            dataset = bigquery.Dataset(f"{self.project_id}.{dataset_id}")
-            dataset.location = location
-            dataset = self.client.create_dataset(dataset)
-            logger.info(f"Created dataset {dataset_id}")
-            return dataset
-        except Exception as e:
-            logger.error(f"Failed to create dataset: {e}")
-            raise
-
-    def delete_dataset(self, dataset_id: str, delete_contents: bool = False) -> None:
-    
-        try:
-            self.client.delete_dataset(dataset_id, delete_contents=delete_contents)
-            logger.info(f"Deleted dataset {dataset_id}")
-        except NotFound:
-            logger.error(f"Dataset {dataset_id} not found")
-            raise
-
-    def extract_to_gcs(
-        self,
-        table_id: str,
-        destination_uri: str,
-        job_config: Optional[bigquery.ExtractJobConfig] = None,
-    ) -> bigquery.ExtractJob:
-      
-        try:
-            if job_config is None:
-                job_config = bigquery.ExtractJobConfig()
-            
-            extract_job = self.client.extract_table(table_id, destination_uri, job_config=job_config)
-            extract_job.result()
-            logger.info(f"Extracted {table_id} to {destination_uri}")
-            return extract_job
-        except NotFound:
-            logger.error(f"Table {table_id} not found")
-            raise
-        except Exception as e:
-            logger.error(f"Failed to extract data: {e}")
-            raise
-"""
