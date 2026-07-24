@@ -33,10 +33,11 @@ class InstrumentAppService:
 
 
 
-    def get_all_instruments(self):
+    def get_all_nse_equities(self):
         instr_repo = InstrumentRepository()
         instruments_by_id: dict[str,Instrument] = instr_repo.get_instruments()
-        return instruments_by_id 
+        comp_stocks = domain_services.filter_company_stocks(instruments_by_id)
+        return comp_stocks
 
     
 

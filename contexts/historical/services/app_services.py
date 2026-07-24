@@ -36,7 +36,7 @@ class HistoricalAppService:
         hists: list[Historical] = domain_services.get_historicals(instr_token, from_dt, to_dt, interval)
         hist_repo = HistoricalRepository()
         hist_repo.sync_values(hists)
-
+        print(f"historicals synced ")
 
 
     def get_todays_data(self, instr_ids):

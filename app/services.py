@@ -66,6 +66,7 @@ class MainAppService:
             "instr_details" : instrument_dets,
             "historicals" : hists 
         }
+        print(f"sync_log ::: historicals synced for {instrument_dets['instr_token']}:{instrument_dets['name']}")
         return data  
         
 
@@ -100,12 +101,12 @@ class MainSyncService:
         interval = payload.get("interval")
 
         instr_app_service = InstrumentAppService()
-        instruments_by_id = instr_app_service.get_all_instruments()
+        nse_equities = instr_app_service.get_all_nse_equities()
 
-        instr_ids = list(instruments_by_id.keys())[0:4]
+        instr_ids = [instr.instr_token for instr in nse_equities]
 
         task_queue_client = get_task_queue_client()
-        for instr_id in instr_ids:
+        for instr_id in instr_ids[0:5]:
             payload = {
                 "from_dt" : from_dt,
                 "to_dt" : to_dt,
