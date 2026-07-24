@@ -92,5 +92,7 @@ class kc_api_client(I_MarketApiClient):
 
 
 
+    def get_ohlc(self, instr_ids):
 
-
+        data = self.kc_client.ohlc(instr_ids)
+        pass 

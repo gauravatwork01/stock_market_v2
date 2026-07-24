@@ -3,62 +3,9 @@ from google.cloud import bigquery
 from google.cloud.exceptions import NotFound, BadRequest
 import logging
 import copy
+from utilities.utilities import log_time
 import uuid
 logger = logging.getLogger(__name__)
-
-
-SCHEMA = {
-    "composite_columns" : ["instr_token", "interval", "date_time"],
-    "columns" : {
-        "instr_token" : "INTEGER",
-        "symbol" : "STRING",
-        "name" : "STRING",
-        "exchange" : "STRING",
-        "created_at" : "DATETIME",
-        "updated_at" : "DATETIME"
-    },
-    ""
-}
-
-def construct_merge_query_using_schema(schema, main_tbl, staging_tbl):
-    comp_cols = schema["composite_columns"]
-    joins_on_str = " AND ".join(f'M.{c} = S.{c}' for c in comp_cols)
-    
-    all_create_cols = list(schema["columns"].keys())
-    create_cols_str = ",".join(all_create_cols)
-    create_vals_str = ",".join(f"S.{col_name}" for col_name in all_create_cols)
-     
-    all_update_cols = copy.deepcopy(all_create_cols)
-    all_update_cols.remove("created_at")
-    update_str = ",".join(f"{col_name} = S.{col_name}" for col_name in all_update_cols)
-
-    
-    merge_query = f"""
-        MERGE `{main_tbl}` M
-        USING `{staging_tbl}` S
-        ON {joins_on_str}
-        WHEN MATCHED THEN UPDATE SET
-            {update_str}
-        WHEN NOT MATCHED THEN INSERT
-            ({create_cols_str})
-            VALUES
-            ({create_vals_str})
-    """
-    return merge_query
-
-
-
-class Schema:
-
-    def __init__(self,schema) -> None:
-        self.schema = schema 
-
-    
-    def parse_bq_schema(self):
-        SCHEMA = []
-        for col_name, data_type in self.schema["columns"].items():
-            schema_field = bigquery.SchemaField(col_name, data_type)
-            SCHEMA.append(schema_field)
 
 
 
@@ -68,7 +15,7 @@ class BigQueryTableClient:
         self.client = bq_client
 
 
-    def create_new_table_from_json(self, load_job_config, table_id, rows):
+    def load_table_from_json(self, load_job_config, table_id, rows):
         
         load_job = self.client.load_table_from_json(
             rows,
@@ -78,9 +25,29 @@ class BigQueryTableClient:
         load_job.result()
 
 
-    def create_table_from_schema(self,table_id, schema):
+    def create_table_from_schema(
+        self,
+        table_id,
+        schema,
+        partition_field = None,
+        clustering_fields = None,
+    ):
         table = bigquery.Table(table_id, schema=schema)
-        self.client.create_table(table)
+
+        if partition_field:
+            part_type = None 
+            if partition_field == "datetime":
+                part_type = bigquery.TimePartitioningType.DAY
+
+            table.time_partitioning = bigquery.TimePartitioning(
+                type_ = part_type,
+                field = partition_field,
+            )
+
+        if clustering_fields:
+            table.clustering_fields = clustering_fields
+
+        return self.client.create_table(table)
 
 
     def table_exists(self, tbl_id:str):
@@ -89,6 +56,11 @@ class BigQueryTableClient:
             return table
         except NotFound:
             return False
+
+    
+    def delete_table(self,tbl_id):
+        self.client.delete_table(tbl_id)
+         
 
 
 class BigQuerySchemaTranslator:
@@ -122,20 +94,28 @@ class BigQueryConfig:
         return job_config
 
 
-    def get_job_config_using_schema(self, schema):
+    def get_job_config_for_filling_table(self):
+        job_config = bigquery.LoadJobConfig(
+            write_disposition = bigquery.WriteDisposition.WRITE_TRUNCATE,
+            create_disposition = bigquery.CreateDisposition.CREATE_NEVER, 
+            ignore_unknown_values = True, 
+        )
+        return job_config
+
+    def get_job_config_with_schema(self,schema):
         job_config = bigquery.LoadJobConfig(
             schema = schema,
-            # write_disposition = bigquery.WriteDisposition.WRITE_APPEND,
             write_disposition = bigquery.WriteDisposition.WRITE_TRUNCATE,
-            create_disposition = bigquery.CreateDisposition.CREATE_IF_NEEDED,  # default
+            create_disposition = bigquery.CreateDisposition.CREATE_NEVER, 
+            ignore_unknown_values = True, 
         )
         return job_config
 
 
 class BigQueryConnection:
 
-    def __init__(self) -> None:
-        # self.client = bigquery.Client()
+    def __init__(self,bq_client) -> None:
+        self.client = bq_client
         self.bq_config = BigQueryConfig()
 
     @property
@@ -208,12 +188,10 @@ class BigQueryClient:
 
         return query_res
 
+    @log_time 
+    def load_existing_table_from_json(self, table_id,schema, rows:list[dict]):
 
-    def insert_data_using_load_strategy(self, schema, rows:list[dict], table_name):
-
-        job_config = self.bq_config.get_job_config_using_schema(schema)
-
-        table_id = f"{self.project_id}.datawarehouse.{table_name}"
+        job_config = self.bq_config.get_job_config_with_schema(schema)
         insert_job = self.client.load_table_from_json(
             rows,
             table_id,
@@ -223,45 +201,59 @@ class BigQueryClient:
         print("Rows inserted successfully.")
 
 
-    def get_or_create_table(self, table_id, schema):
-        table_exists = self.bq_table_client.table_exists(table_id)
-        if table_exists is False:
-            self.bq_table_client.create_table_from_schema(table_id, schema)
-        pass 
-
-
-    def upsert_data_using_merge(self, schema, rows: list[dict], table_name: str):
+    def get_or_create_table(
+        self, 
+        table_id, 
+        schema,
+        partition_field = None,
+        clustering_fields = None
+    ):
         
-        main_table_id = self.bq_connection.get_table_id(
-            table_name = table_name
-        )
-        main_table = self.bq_table_client.table_exists(main_table_id)
-        if main_table is False:
-            self.bq_table_client.create_table_from_schema(main_table_id, schema)
-
-
-        staging_table_id = self.bq_connection.get_table_id(
-            table_name = f"{table_name}_staging_{uuid.uuid4().hex}"
-        )
-        job_config = self.bq_config.get_job_config_using_schema(schema)
-        self.bq_table_client.create_new_table_from_json(job_config, staging_table_id, rows)
-
-        try:
-            table = self.client.get_table(main_table_id)
+        table = self.bq_table_client.table_exists(table_id)
+        if table:
             self._ensure_schema_columns(table, schema)
-        except NotFound:
-            pass 
-            # table = bigquery.Table(main_table_id, schema=schema)
-            # self.client.create_table(table)
+        else:
+            table = self.bq_table_client.create_table_from_schema(
+                table_id, 
+                schema,
+                partition_field = partition_field,
+                clustering_fields = clustering_fields
+            )
+        return table
 
 
-        merge_query = construct_merge_query_using_schema(
-            schema = schema,
-            main_tbl = main_table_id,
-            staging_tbl = staging_table
+    def upsert_data_using_merge(
+        self, 
+        table_dets, 
+        merge_query: str ,
+        rows: list[dict]
+    ):
+        main_tbl_name = table_dets["name"]
+        table_schema = table_dets["bq_schema"]
+        partition_field = table_dets["partition_field"]
+        clustering_fields = table_dets["clustering_fields"]
+
+        main_tbl_id = self.bq_connection.get_table_id(main_tbl_name)
+        main_table = self.get_or_create_table(
+            main_tbl_id, table_schema, partition_field, clustering_fields
+        )
+
+        staging_tbl_name = f"{main_tbl_name}_staging_{uuid.uuid4().hex}"
+        staging_tbl_id = self.bq_connection.get_table_id(staging_tbl_name)
+        staging_table = self.get_or_create_table(
+            staging_tbl_id, table_schema
+        )
+        self.load_existing_table_from_json(staging_tbl_id,table_schema, rows)
+        merge_query = merge_query.format(
+            main_tbl_id = main_tbl_id, 
+            staging_tbl_id = staging_tbl_id
         )
         self.client.query(merge_query).result()
         print("Rows upserted successfully.")
+
+        self.bq_table_client.delete_table(staging_tbl_id)
+
+
 
 
     def _ensure_schema_columns(self, table: bigquery.Table, schema: list):

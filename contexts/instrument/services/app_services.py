@@ -4,6 +4,7 @@ from utilities import utilities
 from ..infrastructure.bq_schema import SCHEMA
 from ..infrastructure.instrument_repo import InstrumentRepository
 from ..models import Instrument
+from . import domain_services
 
 
 class InstrumentAppService:
@@ -36,6 +37,17 @@ class InstrumentAppService:
         instr_repo = InstrumentRepository()
         instruments_by_id: dict[str,Instrument] = instr_repo.get_instruments()
         return instruments_by_id 
+
+    
+
+    def get_company_stocks(self):
+        instr_repo = InstrumentRepository()
+        instruments_by_id: dict[str,Instrument] = instr_repo.get_instruments()
+        comp_stocks = domain_services.filter_company_stocks(instruments_by_id)
+        comp_stocks = [stock.model_dump() for stock in comp_stocks]
+        return comp_stocks
+
+
 
 
     def get_instruments_by_id(self, instr_ids:list):

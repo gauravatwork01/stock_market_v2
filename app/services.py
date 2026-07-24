@@ -3,17 +3,12 @@ from contexts.broker_auth.application.services import get_access_token
 from datetime import datetime
 from dateutil import parser as dateutil_parser
 from zoneinfo import ZoneInfo
-from contexts.instrument.application.services import InstrumentAppService
-from contexts.historical.app.services import HistoricalAppService
+from contexts.instrument.services.app_services import InstrumentAppService
+from contexts.historical.services.app_services import HistoricalAppService
+from utilities.utilities import log_time
 
 class MainAppService:
-
-    def __init__(self,payload) -> None:
-        self.instr_token = payload.get("instr_token")
-        self.from_dt = payload.get("from_dt")
-        self.to_dt = payload.get("to_dt")
-        self.interval = payload.get("interval")
-        
+  
 
     def _parse_ist_datetime(self, value: str) -> datetime:
         dt = dateutil_parser.parse(value)
@@ -22,20 +17,50 @@ class MainAppService:
         return dt
 
 
-    def get_historicals(self):
+    def get_historicals(self, payload):
+        instr_token = payload.get("instr_token")
+        from_dt = payload.get("from_dt")
+        to_dt = payload.get("to_dt")
+        interval = payload.get("interval")
 
         instr_app_service = InstrumentAppService()
         instruments_by_id = instr_app_service.get_instruments_by_id(
-            instr_ids = [self.instr_token]
+            instr_ids = [instr_token]
         )
-        instrument_dets = instruments_by_id[self.instr_token]
+        instrument_dets = instruments_by_id[instr_token]
 
         hist_app_service = HistoricalAppService()
         hists = hist_app_service.get_historicals(
-            instr_token= self.instr_token,
-            from_dt = self._parse_ist_datetime(self.from_dt),
-            to_dt = self._parse_ist_datetime(self.to_dt),
-            interval = self.interval
+            instr_token= instr_token,
+            from_dt = self._parse_ist_datetime(from_dt),
+            to_dt = self._parse_ist_datetime(to_dt),
+            interval = interval
+        )
+        data = {
+            "instr_details" : instrument_dets,
+            "historicals" : hists 
+        }
+        return data  
+
+    @log_time
+    def sync_historicals(self, payload):
+        instr_token = payload.get("instr_token")
+        from_dt = payload.get("from_dt")
+        to_dt = payload.get("to_dt")
+        interval = payload.get("interval")
+
+        instr_app_service = InstrumentAppService()
+        instruments_by_id = instr_app_service.get_instruments_by_id(
+            instr_ids = [instr_token]
+        )
+        instrument_dets = instruments_by_id[instr_token]
+
+        hist_app_service = HistoricalAppService()
+        hists = hist_app_service.sync_historicals(
+            instr_token = instr_token,
+            from_dt = self._parse_ist_datetime(from_dt),
+            to_dt = self._parse_ist_datetime(to_dt),
+            interval = interval
         )
         data = {
             "instr_details" : instrument_dets,
@@ -43,3 +68,24 @@ class MainAppService:
         }
         return data  
         
+
+
+    def get_todays_data(self):
+        instr_app_service = InstrumentAppService()
+        comp_stocks = instr_app_service.get_company_stocks()
+        instr_ids = [each_instr["instr_token"] for each_instr in comp_stocks]
+        instr_id_batches = []
+
+        batch_size = 1000
+        for i in range(0,len(instr_ids), batch_size):
+            instr_id_batch = instr_ids[i:i+batch_size]
+            instr_id_batches.append(instr_id_batch)
+             
+
+        hist_app_service = HistoricalAppService()
+        hist_app_service.get_todays_data(instr_id_batches[0])
+        pass 
+
+
+
+

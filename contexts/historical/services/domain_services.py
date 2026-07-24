@@ -3,8 +3,10 @@ from shared.infrastructure import get_kc_api_client
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from ..infra.kc_provider import KiteConnectProvider
+from ..models import Historical
+from utilities.utilities import log_time
 
-
+@log_time
 def get_historicals(
     instr_token, from_dt: datetime, to_dt: datetime, interval: str
 ):
@@ -17,3 +19,6 @@ def get_historicals(
         instr_token=instr_token, st_dt=from_dt, end_dt=to_dt, interval=interval
     )
     return hists
+
+
+

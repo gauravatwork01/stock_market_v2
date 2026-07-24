@@ -1,5 +1,7 @@
 
-
+import time
+import functools
+import logging
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -19,7 +21,17 @@ def convert_ist_to_utc(ist_dt):
     return utc_dt
 
 
-
+def log_time(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        try:
+            return func(*args, **kwargs)
+        finally:
+            elapsed = time.perf_counter() - start
+            msg = f"{func.__qualname__} took {elapsed:.4f}s"
+            print(msg)
+    return wrapper
 
 
 

@@ -1,5 +1,5 @@
 from flask import Blueprint, redirect, request, render_template 
-from .application.services import InstrumentAppService 
+from .services.app_services import InstrumentAppService
 from .models.instrument import Instrument
 
 
@@ -16,9 +16,13 @@ def sync_instruments():
 @instrument_bp.route("/get", endpoint="get")
 def get_instruments():
     instr_service = InstrumentAppService()
-    instruments: list[Instrument] = instr_service.get_instruments()
-    response_data = [instr.model_dump() for instr in instruments]
-    return {"data":response_data}, 200
+    instruments: list[Instrument] = instr_service.get_company_stocks()
+
+    response = {
+        "count" : len(instruments),
+        "data" : instruments
+    }
+    return response, 200
     
 
 
