@@ -106,7 +106,7 @@ class MainSyncService:
         instr_ids = [instr.instr_token for instr in nse_equities]
 
         task_queue_client = get_task_queue_client()
-        for instr_id in instr_ids[0:5]:
+        for instr_id in instr_ids:
             payload = {
                 "from_dt" : from_dt,
                 "to_dt" : to_dt,
