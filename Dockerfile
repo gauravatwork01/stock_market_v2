@@ -17,7 +17,7 @@ EXPOSE 8080
 
 ENV STOCK_API_BASE=https://stocks3.onrender.com
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--threads", "4", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--threads", "4", "main:app"]
 
 # CMD exec gunicorn --bind :$PORT --workers 1 --timeout 0 main:app
 

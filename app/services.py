@@ -89,3 +89,33 @@ class MainAppService:
 
 
 
+from flask import url_for
+from shared.infrastructure import get_task_queue_client
+class MainSyncService:
+
+    @log_time
+    def sync_all_historicals(self, payload):
+        from_dt = payload.get("from_dt")
+        to_dt = payload.get("to_dt")
+        interval = payload.get("interval")
+
+        instr_app_service = InstrumentAppService()
+        instruments_by_id = instr_app_service.get_all_instruments()
+
+        instr_ids = list(instruments_by_id.keys())[0:4]
+
+        task_queue_client = get_task_queue_client()
+        for instr_id in instr_ids:
+            payload = {
+                "from_dt" : from_dt,
+                "to_dt" : to_dt,
+                "interval" : interval,
+                "instr_token" : instr_id
+            }
+            task_queue_client.create_task_queue(
+                payload = payload,
+                endpoint = url_for("app.sync_historicals")
+            )
+        
+        
+        return True 

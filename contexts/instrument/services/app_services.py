@@ -33,7 +33,7 @@ class InstrumentAppService:
 
 
 
-    def get_instruments(self):
+    def get_all_instruments(self):
         instr_repo = InstrumentRepository()
         instruments_by_id: dict[str,Instrument] = instr_repo.get_instruments()
         return instruments_by_id 
