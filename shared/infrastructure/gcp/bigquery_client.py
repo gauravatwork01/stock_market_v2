@@ -188,6 +188,15 @@ class BigQueryClient:
 
         return query_res
 
+    
+    def execute_query_as_arrow(self, query, query_params=None):
+        query_res = self.bq_connection.execute_query(
+            query = query,
+            query_params = query_params
+        )
+
+        return query_res.to_arrow()
+
     @log_time 
     def load_existing_table_from_json(self, table_id,schema, rows:list[dict]):
 

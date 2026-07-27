@@ -1,17 +1,17 @@
 
 from flask import Blueprint, redirect, request, render_template 
-# from interfaces import api_controller
-# from .application.services import get_kite_login_url
+from .services.app_services import AnalysisAppService
 
 
 
 analysis_bp = Blueprint("analysis_bp", __name__, url_prefix="/analysis")
 
 
-@analysis_bp.route("/", endpoint="home")
+@analysis_bp.route("/", endpoint="home", methods=["GET"])
 def analysis_home():
-    
-    return None 
+    AnalysisAppService().get_report()
+
+    return {"status": "done"}, 200 
 
 
 

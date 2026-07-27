@@ -10,5 +10,5 @@ pytest==9.0.3
 polars==1.40.0
 google-cloud-tasks==2.23.0
 
-
+plotly==6.9.0
 

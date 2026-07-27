@@ -5,7 +5,7 @@ from flask import Flask, Response, redirect, render_template, url_for, request
 from utilities import utilities
 from google.cloud import bigquery
 from interfaces.api import api_bp
-from interfaces.analysis_controller import analysis_bp
+from contexts.analysis.api_bp import analysis_bp
 
 from contexts.broker_auth.api_bp import broker_auth_bp
 from contexts.holdings.api_bp import holdings_bp

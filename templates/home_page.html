@@ -22,9 +22,6 @@
             <a class="nav-link {{ 'active' if request.endpoint == 'holdings' else '' }}" href="{{ url_for('broker_auth.login') }}">Holdings</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {{ 'active' if request.endpoint == 'analysis' else '' }}" href="{{ url_for('analysis.home') }}">Analysis</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link {{ 'active' if request.endpoint == 'auth' else '' }}" href="{{ url_for('broker_auth.login') }}">Auth</a>
           </li>
           <li class="nav-item">
