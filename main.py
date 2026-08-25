@@ -11,6 +11,7 @@ from contexts.broker_auth.api_bp import broker_auth_bp
 from contexts.holdings.api_bp import holdings_bp
 from contexts.instrument.api_bp import instrument_bp
 from contexts.historical.api_bp import historical_bp
+from contexts.financials.api_bp import financials_bp
 from app.api_bp import app_bp
 
 
@@ -26,6 +27,7 @@ app.register_blueprint(holdings_bp)
 app.register_blueprint(instrument_bp)
 app.register_blueprint(historical_bp)
 app.register_blueprint(app_bp)
+app.register_blueprint(financials_bp)
 
 
 if __name__ == "__main__":
