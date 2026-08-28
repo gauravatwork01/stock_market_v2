@@ -3,6 +3,11 @@ from io import StringIO
 import pandas as pd
 from io import BytesIO
 from .services.upload_services import save_financials
+from .services import content_reader
+from .services import mapping_services, data_analyzer
+from contexts.financials.infra.big_query.financials_repo import FinancialsRepo
+from contexts.financials.models import FinancialReport
+
 
 class FlaskFile:
 
@@ -32,7 +37,7 @@ class FlaskFile:
         csv_rows = self.read_string_to_csvrows(content_string)
         return csv_rows
 
-    def to_rows(self, file_attachment):
+    def to_rows(self, file_attachment)->list[dict]:
         if file_attachment is None:
             return []
 
@@ -40,8 +45,11 @@ class FlaskFile:
         content = self.read_uploaded_file_to_bytes(file_attachment)
 
         if filename.endswith(".csv"):
-            text = content.decode("utf-8-sig", errors="replace")
-            return list(csv.DictReader(StringIO(text)))
+            df = pd.read_csv(BytesIO(content), dtype=str)
+            df.columns = df.columns.str.strip()
+            return df.to_dict(orient="records")
+            # text = content.decode("utf-8-sig", errors="replace")
+            # return list(csv.DictReader(StringIO(text)))
 
         if filename.endswith(".xlsx"):
             df = pd.read_excel(BytesIO(content), dtype=str)
@@ -62,4 +70,27 @@ def upload_financials(request):
     
 
 
+def ingest_xbrl_filings(request):
+    file_attachment = request.files.get("file")
+    flask_file = FlaskFile()
+    file_rows = flask_file.to_rows(file_attachment)
 
+    for each_row in file_rows:
+        xbrl_link = each_row.get("XBRL")
+        if xbrl_link:
+            xbrl_content = content_reader.fetch_link_contents(xbrl_link)
+            xbrl_data = content_reader.parse_xbrl(xbrl_content)
+            fin_report : FinancialReport = mapping_services.parse_xbrl_data_to_domain(xbrl_data,xbrl_link)
+            financials_repo = FinancialsRepo()
+            financials_repo.upload_financials(fin_report)
+        pass 
+    pass 
+
+
+
+
+def get_financials(isin):
+    financials_repo = FinancialsRepo()
+    data = financials_repo.get_financials(isin)
+    data = data_analyzer.analyze(data)
+    return data

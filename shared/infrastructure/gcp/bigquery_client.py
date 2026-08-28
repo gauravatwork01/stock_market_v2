@@ -197,6 +197,12 @@ class BigQueryClient:
 
         return query_res.to_arrow()
 
+
+    def delete_all_records(self, table_id: str):
+        query = f"TRUNCATE TABLE `{table_id}`"
+        self.client.query(query).result()
+        logger.info("Deleted all records from %s", table_id)
+
     @log_time 
     def load_existing_table_from_json(self, table_id,schema, rows:list[dict]):
 
@@ -243,6 +249,7 @@ class BigQueryClient:
         clustering_fields = table_dets["clustering_fields"]
 
         main_tbl_id = self.bq_connection.get_table_id(main_tbl_name)
+        # self.delete_all_records(main_tbl_id)
         main_table = self.get_or_create_table(
             main_tbl_id, table_schema, partition_field, clustering_fields
         )
