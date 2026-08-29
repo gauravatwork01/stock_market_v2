@@ -24,19 +24,27 @@ class LineItemCategory(str):
 #     NON_OPERATING = "non_operating"
 
 
-class OperatingNature(str, Enum):
+class OperatingNature(str):
     OPERATING = "operating"
     NON_OPERATING = "non_operating"
 
 
-class CashNature(str, Enum):
+class CashNature(str):
     CASH = "cash"
     NON_CASH = "non_cash"
 
 
 class FinancialReport(BaseModel):
     isin : str
-    source_link: str 
+    source_link: str = Field(
+        description="whether nse-xbrl or nse-xlsx or any other 3rd pty etc.",
+    )
+    type_of_report_period: str = Field(
+        description="Type of the report period, e.g., 'quarterly' or 'annual'.",
+    )
+    report_period_end_date : str = Field(
+        description="End date of the financial report period.",
+    )
     source: str 
     symbol: str 
     company_name: Optional[str] = None
@@ -60,8 +68,9 @@ class FinancialReport(BaseModel):
     finance_costs: Optional[float] = Field(
         description="Interests incurred on borrowings during the financial period.",
         json_schema_extra={
-            "lineitem_category": LineItemCategory.EXPENSE, 
-            "statement": StatementCategory.INCOME_STATEMENT
+            "category": "lineitem",
+            "expense_category": LineItemCategory.EXPENSE, 
+            "statement_category": StatementCategory.INCOME_STATEMENT
         }
     )
     employee_benefits_expense: Optional[float] = Field(
@@ -74,10 +83,11 @@ class FinancialReport(BaseModel):
                     5. ESOPs (non-cash)
                     """,
         json_schema_extra={
-            "lineitem_category": LineItemCategory.EXPENSE, 
+            "category": "lineitem",
+            "expense_category": LineItemCategory.EXPENSE, 
             "operating_nature": OperatingNature.OPERATING,  
             "cash_flow_nature": CashNature.CASH,
-            "statement": StatementCategory.INCOME_STATEMENT
+            "statement_category": StatementCategory.INCOME_STATEMENT
         }
     )
 
@@ -88,10 +98,11 @@ class FinancialReport(BaseModel):
             or amount/life(5yrs) * the period
         """,
         json_schema_extra={
-            "lineitem_category": LineItemCategory.EXPENSE, 
+            "category": "lineitem",
+            "expense_category": LineItemCategory.EXPENSE, 
             "operating_nature": OperatingNature.OPERATING, 
             "cash_flow_nature": CashNature.NON_CASH, 
-            "statement": StatementCategory.INCOME_STATEMENT
+            "statement_category": StatementCategory.INCOME_STATEMENT
         }
     )
 
@@ -103,10 +114,11 @@ class FinancialReport(BaseModel):
             etc.
         """,
         json_schema_extra={
-            "lineitem_category": LineItemCategory.EXPENSE, 
+            "category": "lineitem",
+            "expense_category": LineItemCategory.EXPENSE, 
             "operating_nature": OperatingNature.OPERATING, 
             "cash_flow_nature": CashNature.CASH, 
-            "statement": StatementCategory.INCOME_STATEMENT
+            "statement_category": StatementCategory.INCOME_STATEMENT
         }
     )
     

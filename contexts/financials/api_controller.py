@@ -4,6 +4,7 @@ import pandas as pd
 from io import BytesIO
 from .services.upload_services import save_financials
 from .services import content_reader
+from .services import xbrl_parser
 from .services import mapping_services, data_analyzer
 from contexts.financials.infra.big_query.financials_repo import FinancialsRepo
 from contexts.financials.models import FinancialReport
@@ -79,8 +80,9 @@ def ingest_xbrl_filings(request):
         xbrl_link = each_row.get("XBRL")
         if xbrl_link:
             xbrl_content = content_reader.fetch_link_contents(xbrl_link)
-            xbrl_data = content_reader.parse_xbrl(xbrl_content)
-            fin_report : FinancialReport = mapping_services.parse_xbrl_data_to_domain(xbrl_data,xbrl_link)
+            # xbrl_data = content_reader.parse_xbrl(xbrl_content)
+            xbrl_data_sorted, xbrl_data_flat = xbrl_parser.parse_xbrl(xbrl_content)
+            fin_report : FinancialReport = mapping_services.parse_xbrl_data_to_domain(xbrl_data_flat,xbrl_link)
             financials_repo = FinancialsRepo()
             financials_repo.upload_financials(fin_report)
         pass 

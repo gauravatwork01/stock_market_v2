@@ -111,8 +111,8 @@ class FinancialsRepo:
 
         financial_reports = []
         for row in results:
-            # financial_reports.append(FinancialReport(**row.get("data")))
-            financial_reports.append(row.get("data"))
+            financial_reports.append(FinancialReport(**row.get("data")))
+            # financial_reports.append(row.get("data"))
 
         return financial_reports
 

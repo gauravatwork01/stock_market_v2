@@ -46,10 +46,17 @@ def parse_xbrl_data_to_domain(xbrl_data,xbrl_link):
     professional_charges = convert_to_float(professional_charges)
 
 
+    type_of_report_period = xbrl_data.get("TypeOfReportingPeriod")
+    type_of_report_period = type_of_report_period.lower()
+
+    report_period_end_date = xbrl_data.get("DateOfEndOfReportingPeriod")
+
     fin = FinancialReport(
         isin = isin,
         source = source,
         source_link = xbrl_link,
+        type_of_report_period = type_of_report_period,
+        report_period_end_date = report_period_end_date,
         symbol = symbol,
         company_name = company_name,
         sebi_intimation_date = sebi_intimation_date,
