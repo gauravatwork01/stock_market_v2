@@ -50,11 +50,59 @@ def analyze(data: list[FinancialReport]):
                 new_data[line_item_key][year_quarter] = value
 
     df = pd.DataFrame(new_data).T
-    # df.index.name = "line_item"   
-    html_data = df.to_html(classes='data', index=True)
-    return html_data
-     
+    # df = add_totals(df)
+    quarter_cols = [col for col in df.columns if col[0].isdigit()]
+    df = add_calculations(df,quarter_cols)
+    return df
 
+
+def add_colors(df,quarter_cols):
+    styled_df = df.style.set_properties(subset=quarter_cols, **{"background-color": "#f5f5f5","color": "black",})
+    return styled_df
+
+
+def add_calculations(df,quarter_cols):
+    
+
+    calculated_cols = {}
+    for col in quarter_cols:
+        # total_expense = df.groupby("expense_category")[col].sum()
+        total_expense = df.groupby("expense_category")[col].transform("sum").astype(float)
+        pct = (df[col].astype(float) / total_expense * 100).round(2)
+        calculated_cols[f"{col}_exp_pct"] = pct
+
+        col_index = df.columns.get_loc(col)
+        df.insert(
+            col_index + 1,
+            f"{col}_exp_pct",
+            pct
+        ) 
+    return df
+
+
+def add_totals(df):
+    quarter_cols = [col for col in df.columns if col[0].isdigit()]
+    result_frames = []
+
+    for category, group in df.groupby("expense_category"):
+        result_frames.append(group)
+
+        subtotal_data = {}
+        for col in df.columns:
+            if col in quarter_cols:
+                subtotal_data[col] = group[col].sum()
+            elif col == "expense_category":
+                subtotal_data[col] = category
+            else:
+                subtotal_data[col] = group[col].iloc[0]
+
+        subtotal = pd.DataFrame([subtotal_data], index=[f"Total {category}"])
+        result_frames.append(subtotal)
+
+    final_df = pd.concat(result_frames)
+    return final_df
+
+# st.dataframe(final_df, use_container_width=True)
 
 def analyze_with_polars(data):
 

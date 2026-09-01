@@ -121,6 +121,53 @@ class FinancialReport(BaseModel):
             "statement_category": StatementCategory.INCOME_STATEMENT
         }
     )
+
+    other_production_expenses: Optional[float] = Field(
+        description="""
+            costs directly tied to delivering the company's core services/products
+            e.g 1. software-licenses and tools used on client projects 
+            (like cursor subscription, copilot, jeera-for ticket mgmt)
+            2. cloud infrastructure-service subscriptions etc. etc. 
+        """,
+        json_schema_extra={
+            "category": "lineitem",
+            "expense_category": LineItemCategory.EXPENSE, 
+            "operating_nature": OperatingNature.OPERATING, 
+            "cash_flow_nature": CashNature.CASH, 
+            "statement_category": StatementCategory.INCOME_STATEMENT
+        }
+    )
+
+    other_expenses: Optional[float] = Field(
+        description="""It puts together small expenses all together that aren't big enough to get 
+            their own seperate line-item
+            like 1. office rent
+            2. markesting cost,
+            3. repair and maintenance 
+            4. utilities (electricity, water, internet)
+        """,
+        json_schema_extra={
+            "category": "lineitem",
+            "expense_category": LineItemCategory.EXPENSE, 
+            "operating_nature": OperatingNature.OPERATING, 
+            "cash_flow_nature": CashNature.CASH, 
+            "statement_category": StatementCategory.INCOME_STATEMENT
+        }
+    )
+    cost_of_materials_consumed: Optional[float] = Field(
+        description="""cost of raw materials and components consumed by the company during the financial period.""",
+        json_schema_extra={
+            "category": "lineitem",
+            "expense_category": LineItemCategory.EXPENSE, 
+            "operating_nature": OperatingNature.OPERATING, 
+            "cash_flow_nature": CashNature.CASH, 
+            "statement_category": StatementCategory.INCOME_STATEMENT
+        }
+    )
+
+    # other_production_expenses
+
+    
     
 
 

@@ -1,4 +1,5 @@
 from collections import defaultdict
+import re
 from lxml import etree
 from datetime import datetime
 
@@ -34,7 +35,8 @@ def flatten_facts(sorted_facts):
                 for concept, v in collapsed_value.items():
                     flat_facts[f"{axis}__{label}__{concept}"] = v
             else:
-                flat_facts[f"{axis}__{label}"] = collapsed_value
+                # flat_facts[f"{axis}__{label}"] = collapsed_value
+                flat_facts[label] = collapsed_value
  
     flat_facts = dict(sorted(flat_facts.items()))
     return flat_facts
@@ -158,6 +160,9 @@ def parse_xbrl(link_content):
     #        axis -> label -> {concept: value} when a row has more than
     #        one reported fact besides its Description)
     # --------------------------------------------------
+    if not facts_by_context:
+        return {}, {}
+
 
     facts = {"general": {}}
     dimensional = {axis.split(":", 1)[-1] if axis else axis: {} for axis in axes}

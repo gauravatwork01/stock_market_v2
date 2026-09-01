@@ -18,14 +18,17 @@ def parse_xbrl_data_to_domain(xbrl_data,xbrl_link):
     results_approval_date = xbrl_data.get("DateOfBoardMeetingWhenFinancialResultsWereApproved")
 
     quarter = xbrl_data.get("ReportingQuarter")
-    if "first" in quarter.lower():
-        quarter = "Q1"
-    elif "second" in quarter.lower():
-        quarter = "Q2"
-    elif "third" in quarter.lower():
-        quarter = "Q3"
-    elif "fourth" in quarter.lower():
-        quarter = "Q4"
+    if quarter:
+        if "first" in quarter.lower():
+            quarter = "Q1"
+        elif "second" in quarter.lower():
+            quarter = "Q2"
+        elif "third" in quarter.lower():
+            quarter = "Q3"
+        elif "fourth" in quarter.lower():
+            quarter = "Q4"
+    else:
+        pass 
 
     financial_end_date = xbrl_data.get("DateOfEndOfFinancialYear")
     financial_year = int(financial_end_date.split("-")[0]) if financial_end_date else None
@@ -42,7 +45,17 @@ def parse_xbrl_data_to_domain(xbrl_data,xbrl_link):
     depreciation_amortization = xbrl_data.get("DepreciationDepletionAndAmortisationExpense")
     depreciation_amortization = convert_to_float(depreciation_amortization)
 
-    professional_charges = xbrl_data.get("ProfessionalCharges")
+    # Expense Items
+    other_production_expenses = xbrl_data.get("Other production expenses")
+    other_production_expenses = convert_to_float(other_production_expenses)
+
+    other_expenses = xbrl_data.get("Other expenses")
+    other_expenses = convert_to_float(other_expenses)
+
+    cost_of_materials_consumed = xbrl_data.get("CostOfMaterialsConsumed")
+    cost_of_materials_consumed = convert_to_float(cost_of_materials_consumed)
+
+    professional_charges = xbrl_data.get("Professional charges")
     professional_charges = convert_to_float(professional_charges)
 
 
@@ -67,7 +80,10 @@ def parse_xbrl_data_to_domain(xbrl_data,xbrl_link):
         finance_costs = finance_costs,
         employee_benefits_expense = employee_benefits_expense,
         depreciation_amortization = depreciation_amortization,
-        professional_charges = professional_charges
+        professional_charges = professional_charges,
+        cost_of_materials_consumed = cost_of_materials_consumed,
+        other_production_expenses = other_production_expenses,
+        other_expenses = other_expenses,
     )
 
 

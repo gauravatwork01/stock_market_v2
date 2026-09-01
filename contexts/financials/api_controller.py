@@ -82,6 +82,8 @@ def ingest_xbrl_filings(request):
             xbrl_content = content_reader.fetch_link_contents(xbrl_link)
             # xbrl_data = content_reader.parse_xbrl(xbrl_content)
             xbrl_data_sorted, xbrl_data_flat = xbrl_parser.parse_xbrl(xbrl_content)
+            if not xbrl_data_flat:
+                continue
             fin_report : FinancialReport = mapping_services.parse_xbrl_data_to_domain(xbrl_data_flat,xbrl_link)
             financials_repo = FinancialsRepo()
             financials_repo.upload_financials(fin_report)
@@ -92,6 +94,7 @@ def ingest_xbrl_filings(request):
 
 
 def get_financials(isin):
+    print(f"Fetching financials for ISIN: {isin}")
     financials_repo = FinancialsRepo()
     data = financials_repo.get_financials(isin)
     data = data_analyzer.analyze(data)
